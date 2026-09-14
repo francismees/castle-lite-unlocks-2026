@@ -91,12 +91,12 @@ export const strings = {
       sw: 'Ingiza kodi iliyo chini ya kizibo chako.',
     },
     E2: {
-      en: 'Your code should be exactly 7 characters — 2 letters then 5 characters.',
-      sw: 'Kodi yako inapaswa kuwa na alama 7 kamili — herufi 2, kisha herufi au namba 5.',
+      en: 'Your code should be exactly 7 characters: 2 letters, then 5 characters.',
+      sw: 'Kodi yako inapaswa kuwa na alama 7 kamili: herufi 2, kisha herufi au namba 5.',
     },
     E3: {
-      en: "That code contains a character we don't use. Check the crown — codes never include 0, O, 1, I, 2, Z, 8 or B.",
-      sw: 'Kodi hiyo ina alama ambayo hatutumii. Angalia kizibo tena — kodi zetu hazina 0, O, 1, I, 2, Z, 8 wala B.',
+      en: "That code contains a character we don't use. Check the crown: codes never include 0, O, 1, I, 2, Z, 8 or B.",
+      sw: 'Kodi hiyo ina alama ambayo hatutumii. Angalia kizibo tena: kodi zetu hazina 0, O, 1, I, 2, Z, 8 wala B.',
     },
     E4: {
       en: "That doesn't look like a Castle Lite Unlocks code. Check the first two letters and try again.",
@@ -115,20 +115,20 @@ export const strings = {
   /** §2.3 — server-side result states. Rendered as a result card replacing the form. */
   results: {
     S1: {
-      en: "You're in! Code accepted — you're entered into the draws. Watch your phone.",
-      sw: 'Umeingia! Kodi imekubaliwa — sasa uko kwenye droo. Endelea kufuatilia simu yako.',
+      en: "You're in! Code accepted, and you're entered into the draws. Watch your phone.",
+      sw: 'Umeingia! Kodi imekubaliwa na sasa uko kwenye droo. Endelea kufuatilia simu yako.',
     },
     S2: {
-      en: "🎉 Winner! Your code just unlocked TZS 2,000 — it's on its way to your mobile money.",
-      sw: '🎉 Hongera, umeshinda! Kodi yako imefungua TZS 2,000 — zinatumwa kwenye mobile money yako.',
+      en: "🎉 Winner! Your code just unlocked TZS 2,000, and it's on its way to your mobile money.",
+      sw: '🎉 Hongera, umeshinda! Kodi yako imefungua TZS 2,000, zinatumwa kwenye mobile money yako.',
     },
     E7: {
       en: "We couldn't find that code. Double-check every character against your crown and try again.",
       sw: 'Hatukuipata kodi hiyo. Linganisha kila alama na kizibo chako kisha jaribu tena.',
     },
     E8: {
-      en: 'This code has already been entered. Each code works once — grab another Castle Lite for another chance.',
-      sw: 'Kodi hii imeshatumika. Kila kodi inatumika mara moja tu — chukua Castle Lite nyingine upate nafasi nyingine.',
+      en: 'This code has already been entered. Each code works once, so grab another Castle Lite for another chance.',
+      sw: 'Kodi hii imeshatumika. Kila kodi inatumika mara moja tu, kwa hiyo chukua Castle Lite nyingine upate nafasi nyingine.',
     },
     E9: {
       en: 'Too many attempts. Take a break and try again in a few minutes.',
@@ -139,12 +139,12 @@ export const strings = {
       sw: 'Kodi kutoka namba hii zimesitishwa kwa muda baada ya kodi zisizo sahihi kuingizwa mara kadhaa. Kama unadhani ni makosa, wasiliana na huduma kwa wateja ya Castle Lite iliyo kwenye matangazo ya kampeni.',
     },
     E11: {
-      en: 'The Unlocks 2026 promotion has ended. Thanks for playing — see you next time.',
-      sw: 'Promosheni ya Unlocks 2026 imekwisha. Asante kwa kushiriki — tukutane tena wakati ujao.',
+      en: 'The Unlocks 2026 promotion has ended. Thanks for playing, and see you next time.',
+      sw: 'Promosheni ya Unlocks 2026 imekwisha. Asante kwa kushiriki, tukutane tena wakati ujao.',
     },
     E12: {
-      en: 'Something went wrong on our side. Your code was not used — please try again shortly.',
-      sw: 'Hitilafu imetokea upande wetu. Kodi yako haijatumika — tafadhali jaribu tena baada ya muda mfupi.',
+      en: 'Something went wrong on our side. Your code was not used, so please try again shortly.',
+      sw: 'Hitilafu imetokea upande wetu. Kodi yako haijatumika, tafadhali jaribu tena baada ya muda mfupi.',
     },
     winnerBadge: { en: 'Instant win', sw: 'Ushindi papo hapo' },
   },
@@ -259,10 +259,11 @@ export const strings = {
   activation: {
     h2: { en: 'Find Us On the Ground', sw: 'Tukute Mtaani' },
     body: {
-      en: 'Castle Lite brand ambassadors are out in bars and events across the campaign regions — find us and enter your code on the spot.',
-      sw: 'Mabalozi wa Castle Lite wapo kwenye baa na matukio katika mikoa ya kampeni — tukute na uingize kodi yako papo hapo.',
+      en: 'Castle Lite brand ambassadors are out in bars and events across the campaign regions. Find us and enter your code on the spot.',
+      sw: 'Mabalozi wa Castle Lite wapo kwenye baa na matukio katika mikoa ya kampeni. Tukute na uingize kodi yako papo hapo.',
     },
     regionsLabel: { en: 'Campaign regions', sw: 'Mikoa ya kampeni' },
+    callCta: { en: 'Call for more information', sw: 'Piga simu kwa maelezo zaidi' },
     ambassadorsAlt: {
       en: 'Three Castle Lite brand ambassadors in silver Castle Lite jackets',
       sw: 'Mabalozi watatu wa Castle Lite wakiwa wamevaa jaketi za fedha za Castle Lite',

@@ -28,6 +28,22 @@ export function Activations() {
           <p className="section__lede">{t(s.activation.body)}</p>
         </div>
 
+        {/* One link: the number and the call-to-action read as a single "call" target. */}
+        <a className="callout" href={`tel:${campaign.infoPhone.replace(/\s+/g, '')}`}>
+          <span className="callout__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="24" height="24" focusable="false">
+              <path
+                d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1Z"
+                fill="currentColor"
+              />
+            </svg>
+          </span>
+          <span className="callout__text">
+            <span className="callout__number">{campaign.infoPhone}</span>
+            <span className="callout__cta">{t(s.activation.callCta)}</span>
+          </span>
+        </a>
+
         <ul className="chips" aria-label={t(s.activation.regionsLabel)}>
           {campaign.regions.map((r) => (
             <li className="chip" key={r}>

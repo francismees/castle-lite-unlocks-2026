@@ -25,7 +25,7 @@ export function Footer() {
 
         <div className="footer__legal">
           <p lang="en">
-            Promotional Lottery Licence No. {campaign.licenceNumber} — {campaign.licenceAuthority}.
+            Promotional Lottery Licence No. {campaign.licenceNumber}, {campaign.licenceAuthority}.
           </p>
           <p lang="en">
             © {campaign.promoter} {campaign.copyrightYear}. Promoter: {campaign.promoter}. UTC

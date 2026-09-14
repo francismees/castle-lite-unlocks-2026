@@ -95,7 +95,7 @@ export function Terms() {
             )}
 
             <p className="legal-note" lang="en">
-              {t(s.terms.legalNote)} Promotional Lottery Licence No. {campaign.licenceNumber} —{' '}
+              {t(s.terms.legalNote)} Promotional Lottery Licence No. {campaign.licenceNumber},{' '}
               {campaign.licenceAuthority}.
             </p>
           </div>

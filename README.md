@@ -40,7 +40,8 @@ npm install && npm run dev
    which proxies. Nothing prefixed `VITE_` may ever hold the key: that gets inlined
    into the client bundle.
 2. **Confirm the T&Cs.** The signed PDF supplied on 14 Sep 2026 is on the page verbatim
-   (`src/config/terms.ts`). It is the version the spec calls superseded — Grand Draw,
+   (`src/config/terms.ts`), except that clause 9's em dash is a semicolon (the site uses
+   no em dashes). It is the version the spec calls superseded — Grand Draw,
    airtime instant prizes, SMS-only entry — and contradicts the on-page prizes. The
    campaign dates now follow it (10 Aug – 31 Dec 2026); confirm they match the licence. Swap in the reissued clauses, verbatim, when legal has
    them.
@@ -189,7 +190,9 @@ motion turns the band into a still, swipeable row.
 section's bottom edge. Desktop: to the right of the copy, one section-height plus 30px
 tall, so the centre ambassador's head rises 30px into the prize band above; below
 ~1200px the column is too narrow for that height and the image scales down beside the
-copy instead of covering it. Phones: full width under the region chips. The overlap
+copy instead of covering it. Phones: full width under the region chips. Between the
+copy and the chips, a Jolt Blue "Call for more information" line dials
+`campaign.infoPhone` (currently the placeholder +255 123 456 789). The overlap
 needs the section unclipped on desktop, so its background doesn't parallax there.
 
 ## Tickets band

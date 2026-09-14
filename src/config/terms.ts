@@ -6,8 +6,10 @@
  * point of entry.
  *
  * Source: "Castle Lite Unlock 2026 - Terms and conditions.pdf" (supplied 14 Sep 2026),
- * transcribed programmatically and checked word-for-word against the PDF. Only the
- * PDF's layout line breaks are removed; wording, capitals and punctuation are as signed.
+ * transcribed programmatically and checked word-for-word against the PDF. The PDF's
+ * layout line breaks are removed, and clause 9's em dash is a semicolon (no em dashes
+ * anywhere on the site, per review, Sep 2026). Otherwise wording, capitals and punctuation
+ * are as signed.
  *
  * [CONTENT-PENDING: legal confirmation] This is the document spec v1.2 describes as
  * superseded. It still carries 10 Aug – 31 Dec 2026 dates, Grand Draw clauses (1, 7, 8,
@@ -91,7 +93,7 @@ export const termsClauses: Clause[] = [
   {
     n: 9,
     text:
-      'Each unique crown code may only be entered once. Participants may enter as many codes as they have purchased crowns — there is no limit on the number of entries per participant. However, only one weekly prize and one Grand Draw prize may be awarded per participant per draw.',
+      'Each unique crown code may only be entered once. Participants may enter as many codes as they have purchased crowns; there is no limit on the number of entries per participant. However, only one weekly prize and one Grand Draw prize may be awarded per participant per draw.',
   },
   {
     n: 10,
@@ -135,4 +137,4 @@ export const termsClauses: Clause[] = [
   },
 ]
 
-export const TERMS_PLACEHOLDER = '[FULL APPROVED TERMS & CONDITIONS TEXT — TO BE PASTED VERBATIM]'
+export const TERMS_PLACEHOLDER = '[FULL APPROVED TERMS & CONDITIONS TEXT: TO BE PASTED VERBATIM]'

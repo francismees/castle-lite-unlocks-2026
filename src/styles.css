@@ -1564,6 +1564,10 @@ img { max-width: 100%; display: block; }
   .section.section--ice { overflow: visible; }
   .section.section--ice::before { inset: 0; animation: none; transform: none; }
   .activations { --overlap: 30px; --copy-w: 430px; }
+  /* Slightly tighter than other sections: with the call line the copy runs taller, and
+     at the default 84px the section outgrows the height the cut-out can reach at its
+     column width, which would drop the head overlap. */
+  .section.activations { padding: 64px 0; }
   .activations__art {
     position: absolute;
     inset: 0;
@@ -1583,6 +1587,66 @@ img { max-width: 100%; display: block; }
     object-fit: contain;
     object-position: right bottom;
   }
+}
+
+/* ═══ Find Us On the Ground — call line ═════════════════════════════════════
+   A large Jolt Blue number with the call-to-action under it, as one tel: link. On the
+   washed snow plate Jolt Blue measures 4.72:1 at the darkest pixel, so the 13px bold CTA
+   clears 4.5:1 and the number (large text) clears 3:1 easily. */
+.callout {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(12px, 1.4vw, 16px);
+  margin: -8px 0 4px;
+  color: var(--jolt-blue);
+  text-decoration: none;
+  border-radius: 999px;
+}
+.callout__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: clamp(48px, 4.4vw, 58px);
+  height: clamp(48px, 4.4vw, 58px);
+  border-radius: 50%;
+  background: var(--jolt-blue);
+  color: var(--crisp-white);
+  box-shadow: 0 10px 24px rgba(19, 53, 216, 0.32);
+  transition: box-shadow 0.3s var(--ease), scale 0.3s var(--ease);
+}
+.callout__icon svg { transform-origin: 50% 50%; }
+.callout__text { display: grid; gap: 6px; }
+.callout__number {
+  font-family: 'Ciutadella Artwork', var(--font);
+  font-weight: 700;
+  font-size: clamp(26px, 3vw, 38px);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+.callout__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.callout__cta::after { content: '→'; letter-spacing: 0; transition: translate 0.3s var(--ease); }
+@keyframes phone-ring {
+  0%, 100% { rotate: 0deg; }
+  15% { rotate: -16deg; }
+  30% { rotate: 14deg; }
+  45% { rotate: -10deg; }
+  60% { rotate: 8deg; }
+  75% { rotate: -4deg; }
+}
+@media (hover: hover) and (pointer: fine) {
+  .callout:hover .callout__icon { scale: 1.08; box-shadow: 0 0 0 8px rgba(19, 53, 216, 0.14), 0 14px 30px rgba(19, 53, 216, 0.4); }
+  .callout:hover .callout__icon svg { animation: phone-ring 0.7s var(--ease); }
+  .callout:hover .callout__cta::after { translate: 5px 0; }
 }
 
 /* ═══ Region chips ════════════════════════════════════════════════════════ */
@@ -1769,6 +1833,7 @@ html[lang='sw'] .footer__warn { --em: 21.2; }
     .marquee,
     .prizes__controls,
     .step,
+    .callout,
     .chips,
     .acc {
       animation: reveal-up linear both;
