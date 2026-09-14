@@ -767,40 +767,30 @@ img { max-width: 100%; display: block; }
 .section--blue { background: var(--impact-blue); color: var(--ice); }
 .section--blue h2 { color: var(--crisp-white); }
 
-/* White-ice plate behind the light bands (What You Can Unlock, Find Us On the Ground).
+/* White snow plate behind Find Us On the Ground — the same plate as code entry.
 
-   Wash strength is measured, not taste. The plate has genuinely dark blue ice chunks
-   at its edges: unwashed, even Impact Blue text sits at 2.01:1. A wash is mandatory.
-   At 0.38 -> 0.56 the snow and snowflakes read clearly and Impact Blue measures
-   ~7.8:1. The previous 0.72 -> 0.90 wash was safe but flattened the image into a
-   plain grey gradient.
-
-   The trade: Premium Grey is only 2.6:1 at this wash, so any text sitting *directly*
-   on the plate must be Impact Blue — see the .section__lede override below. Copy
-   inside the opaque white cards is unaffected. */
+   Wash is the one measured for code entry, against the darkest pixel anywhere on the
+   plate: at 0.50 -> 0.68 white, Impact Blue measures 11.2:1 and Jolt Blue 4.72:1.
+   Premium Grey would be marginal on it, so text sitting directly on the plate is
+   Impact Blue — see the .section__lede override below. The region chips are opaque
+   white, so their Jolt Blue labels are unaffected. */
 .section--ice {
   overflow: hidden;
-  background-color: var(--premium-silver);
+  background-color: #eaf1f8;
   --plate:
-    linear-gradient(rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.56)),
-    image-set(url('/brand/ice-bg-mobile.webp') 1x);
+    linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.68)),
+    image-set(url('/brand/snow-bg-900.webp') 1x);
+  /* Sits lower than bottom-aligned: the ice floor drops partly below the section edge
+     and more of the snowfall shows. Only bites where the plate is taller than the
+     section (wide screens); on phones `cover` leaves no vertical slack. */
+  --plate-pos: center 60%;
 }
-/* Premium Grey fails on the lightened plate (2.6:1); Impact Blue is ~7.8:1. */
 .section--ice .section__lede { color: var(--ink); }
-/* Same three-plate ladder as the hero: phones get the portrait crop, tablets the
-   landscape plate, and only the widest viewports pay for the 1600px one. */
-@media (min-width: 720px) {
-  .section--ice {
-    --plate:
-      linear-gradient(rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.56)),
-      image-set(url('/brand/ice-bg-800.webp') 1x);
-  }
-}
 @media (min-width: 1100px) {
   .section--ice {
     --plate:
-      linear-gradient(rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.56)),
-      image-set(url('/brand/ice-bg-1600.webp') 1x);
+      linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.68)),
+      image-set(url('/brand/snow-bg-1600.webp') 1x);
   }
 }
 
