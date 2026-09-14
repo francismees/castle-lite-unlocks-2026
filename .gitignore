@@ -1,0 +1,11 @@
+node_modules
+dist
+.vercel
+.env
+.env.local
+*.log
+.DS_Store
+
+# Raw brand pack (141 MB of PSD/PNG/TTF, incl. unreleased artist photography). Not shipped:
+# scripts/build-assets.py turns it into public/, which is committed.
+00 - Assets/

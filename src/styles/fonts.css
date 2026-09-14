@@ -1,0 +1,58 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Ciutadella — the Castle Lite brand typeface.
+
+   Self-hosted: the CSP allows font-src 'self' only, and a third-party font host
+   would fire a request before the age gate is answered.
+
+   Sourced from "00 - Assets/Ciutadella Font", subset to Latin plus the punctuation
+   the EN/SW copy actually uses, and converted to WOFF2 — 604 KB of TTF becomes
+   53 KB across all four weights. Regenerate with scripts/build-assets.py if the
+   copy ever needs glyphs outside that subset.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: 'Ciutadella';
+  src: url('/fonts/ciutadella-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Ciutadella';
+  src: url('/fonts/ciutadella-500.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Ciutadella';
+  src: url('/fonts/ciutadella-600.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Ciutadella';
+  src: url('/fonts/ciutadella-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Artist carousel artwork only. Same Bold file (one download, shared from cache), with
+   the vertical metrics pinned. The Jolt Blue bar behind each artist name starts halfway
+   up the capitals, and its position is set in ems from the top of the line box — which
+   only holds if the baseline sits in the same place on every platform. Without the
+   overrides macOS lays the line out from hhea (780/220) and Windows from usWin
+   (959/241), a 0.08em difference that visibly drops the bar on Windows. The values
+   below are the font's own hhea numbers, so macOS and iOS render exactly as before. */
+@font-face {
+  font-family: 'Ciutadella Artwork';
+  src: url('/fonts/ciutadella-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  ascent-override: 78%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
