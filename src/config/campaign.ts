@@ -50,11 +50,8 @@ export const campaign = {
   licenceNumber: 'PML000004605',
   licenceAuthority: 'Gaming Board of Tanzania',
 
-  /**
-   * Phone line for Find Us On the Ground ("Call for more information").
-   * [CONTENT-PENDING: real number — +255 123 456 789 is a placeholder]
-   */
-  infoPhone: '+255 123 456 789',
+  /** Phone line for Find Us On the Ground ("Call for more information"). */
+  infoPhone: '+255 783 230 329',
 
   /** D4 — alternate entry channel. Rendered as plain text, never a link. */
   shortcode: '15421',

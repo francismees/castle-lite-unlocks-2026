@@ -192,7 +192,7 @@ tall, so the centre ambassador's head rises 30px into the prize band above; belo
 ~1200px the column is too narrow for that height and the image scales down beside the
 copy instead of covering it. Phones: full width under the region chips. Between the
 copy and the chips, a Jolt Blue "Call for more information" line dials
-`campaign.infoPhone` (currently the placeholder +255 123 456 789). The overlap
+`campaign.infoPhone` (+255 783 230 329). The overlap
 needs the section unclipped on desktop, so its background doesn't parallax there.
 
 ## Tickets band
