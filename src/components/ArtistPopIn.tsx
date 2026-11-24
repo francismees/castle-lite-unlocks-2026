@@ -115,14 +115,13 @@ export function ArtistPopIn() {
               {/* One plate per line. The break comes from `nameLines` in
                   config/talents, never from the column width — see there. */}
               {talent.surprise ? (
-                <figcaption className="popin__name popin__name--surprise">
+                <figcaption className="popin__name">
                   {/* Restarts each time the slide comes round: it decodes on arrival. */}
                   {[t(s.events.surprise).split(' ')[0], `${t(s.events.surprise).split(' ').slice(1).join(' ')}?`].map((w, n) => (
                     <span key={n} className="popin__word">
                       <ScrambleText word={w.toUpperCase()} running={i === shown && inView && !reduced} loop={false} />
                     </span>
                   ))}
-                  <span className="popin__load" aria-hidden="true" />
                   <span className="visually-hidden">{t(s.events.surpriseSr)}</span>
                 </figcaption>
               ) : (

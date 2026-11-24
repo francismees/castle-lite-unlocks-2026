@@ -2341,14 +2341,16 @@ html[lang='sw'] .footer__warn { --em: 21.2; }
   position: absolute;
   bottom: 8.3%;
   inset-inline-start: 27%;
-  inset-inline-end: 0;
+  /* The box hugs its widest plate, starting where every name starts. */
+  width: max-content;
   /* A column of separate boxes, not a wrapping line. Where a name breaks is an
      editorial decision taken once in `nameLines` in config/talents, not left to
-     whatever width the viewport happens to hand it. flex-start is what makes each
-     plate hug its own word instead of all of them ruling to one edge. */
+     whatever width the viewport happens to hand it. Each plate hugs its own word,
+     and two-line names (JUMA / NATURE, SURPRISE / ARTIST?) centre on each other
+     (Francis, 24 Nov 2026). */
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.1em;
   font-family: 'Ciutadella Artwork', var(--font);
   font-weight: 700;
@@ -2363,41 +2365,6 @@ html[lang='sw'] .footer__warn { --em: 21.2; }
   letter-spacing: -0.01em;
   text-transform: uppercase;
 }
-/* The surprise plates sit exactly where every other talent's name does (Francis, 24 Nov
-   2026: consistent over the questions-mark clearance). Only the box hugs the plates, so
-   the loading bar beneath is as wide as SURPRISE rather than the whole slot. */
-.popin__name--surprise { inset-inline-end: auto; width: max-content; }
-
-/* The surprise slot (config/talents → surprise): the plates decode into SURPRISE /
-   ARTIST? on arrival, over a thin bar that loads most of the way while the slide holds
-   and never quite finishes. Same device as the line-up card's surprise line. */
-.popin__load {
-  position: relative;
-  width: 100%;
-  max-width: 9em;
-  height: 0.09em;
-  min-height: 3px;
-  margin-top: 0.18em;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.18);
-  overflow: hidden;
-}
-.popin__load::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(90deg, var(--jolt-blue), var(--crisp-white));
-  box-shadow: 0 0 10px rgba(185, 205, 255, 0.7);
-  transform: scaleX(0);
-  transform-origin: left;
-}
-.popin__item.is-current .popin__load::after { animation: popin-load 5.6s cubic-bezier(0.25, 0.8, 0.3, 1) both; }
-@keyframes popin-load { from { transform: scaleX(0); } to { transform: scaleX(0.9); } }
-@media (prefers-reduced-motion: reduce) {
-  .popin__item.is-current .popin__load::after { animation: none; transform: scaleX(0.6); }
-}
-
 .popin__word {
   background: var(--jolt-blue);
   color: var(--crisp-white);
