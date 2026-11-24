@@ -15,6 +15,19 @@ export function usePrefersReducedMotion(): boolean {
   return reduced
 }
 
+/** Live match for any media query. Same pattern as usePrefersReducedMotion. */
+export function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(() => window.matchMedia?.(query).matches ?? false)
+  useEffect(() => {
+    const mq = window.matchMedia(query)
+    setMatches(mq.matches)
+    const handler = (e: MediaQueryListEvent) => setMatches(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [query])
+  return matches
+}
+
 /** Server-corrected clock, ticking once a second. Used by the tickets countdown. */
 export function useTick(intervalMs = 1000): number {
   const [t, setT] = useState(() => now())

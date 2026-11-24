@@ -32,18 +32,25 @@ export function CastleLiteLogo({ variant = 'header' }: { variant?: 'header' | 'f
 export function UnlocksLockup({
   className = 'unlocks-lockup',
   label,
+  stacked = false,
 }: {
   className?: string
   /** Supply only where the lockup is the sole branding on screen (the age gate). */
   label?: string
+  /**
+   * The stacked cut: the Snowcastle centred above CASTLE LITE / UNLOCKS, as set on the
+   * Arusha artboard (01 - ARUSHA/LOCK UP.ai). The hero uses it; elsewhere keeps the
+   * inline lockup with the Snowcastle beside CASTLE LITE.
+   */
+  stacked?: boolean
 }) {
   return (
     <img
-      src="/brand/unlocks-white.svg"
+      src={stacked ? '/brand/unlocks-stacked-white.svg' : '/brand/unlocks-white.svg'}
       alt={label ?? ''}
       className={className}
-      width={460}
-      height={146}
+      width={stacked ? 311 : 460}
+      height={stacked ? 165 : 146}
       decoding="async"
     />
   )

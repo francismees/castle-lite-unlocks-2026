@@ -5,7 +5,8 @@ import { DayMonth } from './DayMonth'
 
 /**
  * Tickets band, directly under the hero: "Tickets available soon" with a live countdown
- * to campaign.ticketsOnSaleAt. Time comes from the server-corrected clock, so a phone
+ * to campaign.ticketsOnSaleAt. Once that moment passes the countdown gives way to a
+ * "Buy tickets" button, in the same right-hand slot, into the ticket journey (campaign.ticketsUrl). Time comes from the server-corrected clock, so a phone
  * with a wrong clock can't show tickets as live early.
  *
  * The ticking digits are aria-hidden (a screen reader would otherwise be read a new
@@ -40,6 +41,13 @@ export function Tickets() {
             </span>
           </p>
         </div>
+
+        {/* Live: the button takes the countdown's place in the right-hand column. */}
+        {live && (
+          <a className="btn btn--primary tickets__buy" href={campaign.ticketsUrl}>
+            {t(s.tickets.buy)}
+          </a>
+        )}
 
         {!live && (
           <div className="countdown" aria-hidden="true">

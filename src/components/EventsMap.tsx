@@ -45,10 +45,25 @@ const mapSrcset = (ext: 'avif' | 'webp') =>
 
 const artistName = (id: string) => artists.find((a) => a.id === id)?.name ?? id
 
+/**
+ * A show is done once its own day is over in EAT. Derived from the server-corrected
+ * clock, never a hand-set flag, so a city marks itself done the morning after without
+ * anyone editing the config, and a device with a wrong clock can't age a show early.
+ * A city with no date yet is never "done".
+ */
+const isPast = (e: MegaEvent) =>
+  !!e.date && new Date(`${e.date}T23:59:59+03:00`).getTime() < now()
+
 export function EventsMap() {
   const { s, t, lang } = useLang()
   const events = campaign.events
-  const restingId = (events.find((e) => e.lineup) ?? events[0]).id
+  // Rest on the next show still to come that has a lineup; once every show has been,
+  // fall back to the last one rather than showing nothing.
+  const restingId = (
+    events.find((e) => e.lineup && !isPast(e)) ??
+    [...events].reverse().find((e) => e.lineup) ??
+    events[0]
+  ).id
   // The city being previewed, if any. Everything else shows the resting city.
   const [previewId, setPreviewId] = useState<string | null>(null)
   const activeId = previewId ?? restingId
@@ -102,7 +117,9 @@ export function EventsMap() {
                 <button
                   key={e.id}
                   type="button"
-                  className={`map__pin map__pin--${LABEL_SIDE[e.id] ?? 'right'}`}
+                  className={`map__pin map__pin--${LABEL_SIDE[e.id] ?? 'right'}${
+                    isPast(e) ? ' is-done' : ''
+                  }`}
                   style={pinStyle(e.coords)}
                   aria-pressed={e.id === activeId}
                   aria-controls="mega-lineup"
@@ -113,7 +130,11 @@ export function EventsMap() {
                   onClick={() => preview(e.id)}
                 >
                   <span className="map__dot" aria-hidden="true" />
-                  <span className="map__label">{e.city}</span>
+                  <span className="map__label">
+                    {e.city}
+                    {isPast(e) && <span className="map__done">{t(s.events.done)}</span>}
+                  </span>
+                  {isPast(e) && <span className="visually-hidden">{t(s.events.doneSr)}</span>}
                 </button>
               ))}
             </div>
@@ -143,7 +164,15 @@ function CityPanel({ event, active, lang }: { event: MegaEvent; active: boolean;
 
   return (
     <div className={`lineup__panel${active ? ' is-active' : ''}`} aria-hidden={!active}>
-      <h3 className="lineup__city">{event.city}</h3>
+      <h3 className="lineup__city">
+        {event.city}
+        {isPast(event) && (
+          <>
+            <span className="lineup__done">{t(s.events.done)}</span>
+            <span className="visually-hidden">{t(s.events.doneSr)}</span>
+          </>
+        )}
+      </h3>
 
       {lineup ? (
         <ul className="lcards">
@@ -172,27 +201,32 @@ function CityPanel({ event, active, lang }: { event: MegaEvent; active: boolean;
             variant="headliners"
             axis="y"
             label={t(s.events.headliners)}
+            /* Only where the bill is carousel artists with photography. A city billing
+               acts we have no shots of flips to the plain back face instead of an
+               empty coin. */
             back={
-              <span className="coin" aria-hidden="true">
-                <span className="coin__inner">
-                  {lineup.headliners.map((id) => {
-                    const artist = artists.find((a) => a.id === id)
-                    if (!artist) return null
-                    const [fx, fy] = artist.face
-                    return (
-                      <img
-                        key={id}
-                        className="coin__img"
-                        src={`/artists/${artist.image}-480.webp`}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                        style={{ left: `${50 - fx * 300}%`, top: `${50 - fy * 300}%` }}
-                      />
-                    )
-                  })}
+              lineup.headliners.some((id) => artists.some((a) => a.id === id)) ? (
+                <span className="coin" aria-hidden="true">
+                  <span className="coin__inner">
+                    {lineup.headliners.map((id) => {
+                      const artist = artists.find((a) => a.id === id)
+                      if (!artist) return null
+                      const [fx, fy] = artist.face
+                      return (
+                        <img
+                          key={id}
+                          className="coin__img"
+                          src={`/artists/${artist.image}-480.webp`}
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                          style={{ left: `${50 - fx * 300}%`, top: `${50 - fy * 300}%` }}
+                        />
+                      )
+                    })}
+                  </span>
                 </span>
-              </span>
+              ) : undefined
             }
           >
             <p className="lcard__value lcard__value--strong">

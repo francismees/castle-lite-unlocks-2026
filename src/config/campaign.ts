@@ -31,7 +31,12 @@ export interface MegaEvent {
    * loading state for that city.
    */
   lineup?: {
-    /** Artist ids from ./artists.ts — names and spellings live there, once. */
+    /**
+     * Artist ids from ./artists.ts where that artist has carousel photography, so the
+     * name and spelling live in one place and the flip side can show their face.
+     * Any other act is written here as a plain display name: EventsMap falls back to
+     * the raw string, and the card simply flips without a photo coin.
+     */
     headliners: string[]
     djs: string[]
     hosts: string[]
@@ -71,11 +76,15 @@ export const campaign = {
   /**
    * D5 — experience/hype content only. No "win tickets" language anywhere.
    *
-   * Four Mega Events. Mwanza, Dar es Salaam and Arusha have confirmed dates, all inside
-   * the entry window (campaignEnd, 31 Dec 2026); Mbeya is announced without one.
+   * Two Mega Events: Mwanza and Arusha, both inside the entry window (campaignEnd,
+   * 31 Dec 2026). Dar es Salaam and Mbeya were taken off the map in review, Nov 2026.
+   * They are still listed in `regions` below, which is where the brand ambassadors are
+   * on the ground, not where the Mega Events are: the two lists are deliberately
+   * separate.
    *
-   * Mwanza's lineup and venue are confirmed (lineup card, Sep 2026).
-   * [CONTENT-PENDING: lineups and venues for Dar es Salaam and Arusha]
+   * Mwanza's lineup and venue are confirmed (lineup card, Sep 2026); it has now been
+   * and gone, and the map marks it done off its date, not off a hand-set flag.
+   * Arusha's lineup and venue are confirmed (Nov 2026).
    */
   events: [
     {
@@ -87,13 +96,23 @@ export const campaign = {
       lineup: {
         headliners: ['harmonize', 'scotts-maphuma', 'darassa'],
         djs: ['DJ Khally Racky', 'DJ K Flip', 'DJ Kidy Lax'],
-        hosts: ['Kibo', 'Iddy Mula'],
+        hosts: ['Kiboh', 'Iddi Muller'],
       },
     },
-    { id: 'e2', city: 'Dar es Salaam', venue: 'Venue TBC', date: '2026-12-05', coords: [-6.7924, 39.2083] },
-    { id: 'e3', city: 'Arusha', venue: 'Venue TBC', date: '2026-12-31', coords: [-3.3869, 36.683] },
-    // [CONTENT-PENDING: Mbeya date, venue and lineup] Shows the loading state until then.
-    { id: 'e4', city: 'Mbeya', venue: 'Venue TBC', coords: [-8.9094, 33.4608] },
+    {
+      id: 'e3',
+      city: 'Arusha',
+      venue: 'General Tyre',
+      date: '2026-12-31',
+      coords: [-3.3869, 36.683],
+      // Lineup and venue confirmed in review, Nov 2026. None of these four are in
+      // artists.ts (no carousel photography), so they are plain display names.
+      lineup: {
+        headliners: ['Marioo', 'G Nako', 'Ayra Starr', 'Felo Le Tee'],
+        djs: ['Joozey', "D'Ommy"],
+        hosts: ['Kiboh', 'Iddi Muller'],
+      },
+    },
   ] as MegaEvent[],
 
   /**
@@ -101,6 +120,15 @@ export const campaign = {
    * [CONTENT-PENDING: confirm the on-sale time — midnight EAT assumed]
    */
   ticketsOnSaleAt: '2026-09-18T00:00:00+03:00',
+
+  /**
+   * Where "Buy tickets" goes once tickets are live: the ticket journey (a separate app).
+   * Set VITE_TICKETS_URL at build time to point it anywhere else. Locally it is the
+   * journey's own dev server; in a build it is the journey deployed beside the site.
+   */
+  ticketsUrl:
+    (import.meta.env.VITE_TICKETS_URL as string | undefined) ??
+    (import.meta.env.DEV ? 'http://localhost:5181/' : '/tickets/'),
 
   /** Section 4 — display-only chips, not filters. */
   regions: ['Arusha', 'Dar es Salaam', 'Mbeya', 'Mwanza'],

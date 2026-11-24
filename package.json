@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.2.0",
   "type": "module",
-  "description": "Castle Lite Unlocks 2026 \u2014 one-page consumer microsite (UTC code entry). Promoter: Tanzania Breweries PLC. UTC technology partner: Bluetrain Consultancy Limited.",
+  "description": "Castle Lite Unlocks 2026 — one-page consumer microsite (UTC code entry). Promoter: Tanzania Breweries PLC. UTC technology partner: Bluetrain Consultancy Limited.",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
@@ -12,12 +12,14 @@
   },
   "dependencies": {
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "three": "^0.180.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.180.0",
     "@vitejs/plugin-react": "^6.1.1",
     "typescript": "^5.6.3",
     "vite": "^8.3.0"

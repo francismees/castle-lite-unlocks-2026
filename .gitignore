@@ -9,3 +9,9 @@ dist
 # Raw brand pack (141 MB of PSD/PNG/TTF, incl. unreleased artist photography). Not shipped:
 # scripts/build-assets.py turns it into public/, which is committed.
 00 - Assets/
+
+# Venue source material (471 MB: the 188 MB SketchUp-exported GLB, image refs, talent
+# plates). The GLB alone is past GitHub's 100 MB hard file limit, so a push carrying
+# this folder is rejected at the remote. scripts/build-venue.py turns it into
+# public/venue/, which is committed.
+01 - ARUSHA/

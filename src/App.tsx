@@ -5,6 +5,7 @@ import { AgeGate, readGateState, type GateState } from './components/AgeGate'
 import { Hero, SiteHeader } from './components/Hero'
 import { CodeEntry } from './components/CodeEntry'
 import { Tickets } from './components/Tickets'
+import { VenuePreview } from './components/VenuePreview'
 import { EventsMap } from './components/EventsMap'
 import { HowItWorks } from './components/HowItWorks'
 import { Activations } from './components/Activations'
@@ -50,6 +51,7 @@ function Site() {
       <main>
         <Hero />
         <Tickets />
+        <VenuePreview />
         <CodeEntry />
         <HowItWorks />
         <Activations />

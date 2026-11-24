@@ -43,11 +43,20 @@ export const strings = {
   },
 
   hero: {
-    // Headline beside the artist carousel. The date is the Mwanza Mega Event
-    // (campaign.events e1) — update both together.
+    // Headline beside the artist line-up. The lockup SVG carries "Castle Lite
+    // Unlocks", so `payoff` is the second half of the H1 and the two are read
+    // together as one sentence. The date is the next Mega Event
+    // (campaign.events e3) — update both together.
     brand: { en: 'Castle Lite Unlocks', sw: 'Castle Lite Unlocks' },
-    comeback: { en: 'Is back!', sw: 'Imerudi!' },
-    nextShow: { en: 'Mwanza 3rd October!', sw: 'Mwanza, 3 Oktoba!' },
+    // NYE and the host city are set as graphic marks, so both locales carry the
+    // same words, exactly like the lockup above them. [CONTENT-PENDING: confirm
+    // "NYE" reads in Swahili or supply a mark for it.]
+    payoff: { en: 'NYE', sw: 'NYE' },
+    // The date line under NYE, per the Arusha artboard (LOCK UP.ai, Nov 2026).
+    // Renders uppercase. `dateFull` is what a screen reader hears instead.
+    date: { en: '31 Dec 26', sw: '31 Des 26' },
+    dateFull: { en: '31 December 2026', sw: '31 Desemba 2026' },
+    nextShow: { en: 'Arusha', sw: 'Arusha' },
   },
 
   // Code entry — the section directly below the hero. Heading renders uppercase (CSS).
@@ -182,6 +191,17 @@ export const strings = {
     heading: { en: 'Tickets available soon', sw: 'Tiketi zitapatikana hivi karibuni' },
     live: { en: 'Tickets available now', sw: 'Tiketi zinapatikana sasa' },
     onSale: { en: 'Tickets go on sale', sw: 'Tiketi zitaanza kuuzwa' },
+    buy: { en: 'Buy tickets', sw: 'Nunua tiketi' },
+  },
+
+  // 3D venue band, under the tickets band. Working copy (Nov 2026), not yet approved.
+  venueBand: {
+    heading: { en: 'Walk the venue before the night', sw: 'Tembea ukumbini kabla ya usiku wenyewe' },
+    copy: {
+      en: 'Step inside the Arusha setup: the stage, the VIP floor and all 60 VVIP tables. Tap a table to see the stage from your seat.',
+      sw: 'Ingia ndani ya ukumbi wa Arusha: jukwaa, eneo la VIP na meza zote 60 za VVIP. Gusa meza uone jukwaa kutoka kiti chako.',
+    },
+    cta: { en: 'The experience', sw: 'Tajriba' },
   },
 
   // Mega Events map (after Find Us On the Ground). Lineup names come from src/config/campaign.ts.
@@ -196,6 +216,10 @@ export const strings = {
     venue: { en: 'Venue', sw: 'Ukumbi' },
     loading: { en: 'Lineup loading', sw: 'Wasanii wanakuja' },
     showing: { en: 'Showing', sw: 'Inaonyesha' },
+    // Marks a Mega Event whose date has passed, on its pin and its lineup panel.
+    done: { en: 'Done', sw: 'Imeisha' },
+    // Read out after the city name for a past show, so the badge is not sight-only.
+    doneSr: { en: 'This show has already taken place.', sw: 'Tukio hili tayari limeshafanyika.' },
   },
 
   // Prizes band in How It Works. Prize names are the products on the Extra Cold prize
@@ -231,6 +255,7 @@ export const strings = {
     play: { en: 'Resume autoplay', sw: 'Endeleza mzunguko' },
     show: { en: 'Show', sw: 'Onyesha' },
   },
+
 
   how: {
     h2: { en: 'How It Works', sw: 'Jinsi Inavyofanya Kazi' },

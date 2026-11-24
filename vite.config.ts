@@ -9,6 +9,10 @@ export default defineConfig({
     target: 'es2019',
     cssCodeSplit: false,
     reportCompressedSize: true,
+    // Two pages: the site, and the 3D venue on its own (the ticket journey embeds it).
+    rollupOptions: {
+      input: { main: 'index.html', venue: 'venue.html' },
+    },
   },
   server: {
     port: 5180,

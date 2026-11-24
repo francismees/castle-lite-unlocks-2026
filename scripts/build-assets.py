@@ -37,6 +37,58 @@ ARTISTS = [
     ("darassa.png", "darassa"),
 ]
 
+TALENTS_SRC = ROOT / "00 - Assets" / "Talent Regen" / "Approved"
+TALENTS_OUT = ROOT / "public" / "talents"
+
+# Arusha line-up cut-outs for the hero pop-in. Sources are transparent PNGs shot
+# for this hero (00 - Assets/Talent Regen/Approved), framed waist-up with clear
+# margin on three sides so no arm is sliced by the canvas. Widths must match
+# TALENT_WIDTHS in src/config/talents.ts.
+#
+# The quality is held higher than the carousel photography because a cut-out's
+# whole silhouette is an alpha edge, and that is exactly where both codecs fringe
+# first.
+#
+# The ladder used to stop at 850 because the retoucher's PSDs were only 652-905 px
+# wide once cropped, so anything above that was an upscale. These sources are
+# ~1500-2000 px, so the hero can finally be served at its real size: it runs the
+# figure at ~580-750 CSS px, which a 2x screen wants at ~1500. save_ladder still
+# warns on any rung that upscales, so a narrower source re-flags itself.
+TALENT_WIDTHS = [480, 720, 1080, 1500]
+
+# Waist-up crop, as a fraction of the figure's own trimmed height measured from the
+# top of the head. The retoucher's PSDs were 3/4-length, so the build had to cut
+# them down; these sources are already framed waist-up at the camera, which is why
+# every fraction here is 1.0 — the crop is kept as a per-talent control rather than
+# deleted, because the next cut-out supplied may well be 3/4-length again and this
+# is where that is handled. Cropping here rather than in CSS is what keeps the
+# resolution: a CSS crop shows the top of a file blown up past its own pixels.
+TALENTS = [
+    ("marioo.png", "marioo", 1.0),
+    ("g-nako.png", "g-nako", 1.0),
+    ("juma-nature.png", "juma-nature", 1.0),
+]
+
+SCENES_SRC = ROOT / "01 - ARUSHA" / "3D PLAN" / "Scenes"
+SCENES_OUT = ROOT / "public" / "scenes"
+
+# The walkthrough renders, in the order Francis set (23 Nov 2026). The numbers are the
+# frame numbers from the render sequence, kept rather than renamed to 1-14 so a frame
+# on the site can always be traced back to the render it came from; the gaps are his
+# selection, not missing files. SCENE_FRAMES and the order in src/config/scenes.ts
+# must agree — that file builds the srcset and carries the captions.
+#
+# Sources are 2400 x 1350. The stage never renders wider than the 1140px wrap, so 1920
+# already covers it at better than 1.6x; a 2400 rung would be bytes nobody selects.
+# The 240 rung is the thumbnail rail, which is why it is built but kept out of the
+# stage's srcset.
+SCENE_THUMB = 240
+SCENE_WIDTHS = [480, 900, 1440, 1920]
+SCENE_FRAMES = [
+    "0001", "0002", "0003", "0005", "0007", "0009", "0011",
+    "0013", "0015", "0016", "0017", "0018", "0019", "0021",
+]
+
 EVENTS_OUT = ROOT / "public" / "events"
 PRIZES_OUT = ROOT / "public" / "prizes"
 
@@ -69,6 +121,8 @@ UNICODES = (
 )
 
 FACES = [
+    # Light: the hero date line ("31 DEC 26"), as set in 01 - ARUSHA/LOCK UP.ai.
+    ("Ciutadella Light.ttf", "ciutadella-300.woff2"),
     ("Ciutadella Regular.ttf", "ciutadella-400.woff2"),
     ("Ciutadella Medium.ttf", "ciutadella-500.woff2"),
     ("Ciutadella SemiBold.ttf", "ciutadella-600.woff2"),
@@ -168,9 +222,36 @@ def build_artists() -> None:
             print(f"  {slug}-{w:<5d} avif {kb(avif):6.1f} KB   webp {kb(webp_path):6.1f} KB")
 
 
+# Alpha below this is treated as empty canvas, not as part of the figure.
+#
+# Not a nicety. Generated transparent PNGs come back with thousands of isolated
+# 1-px specks at alpha 1-16 scattered right across the canvas — invisible to the
+# eye but not to Image.getbbox(), which counts any alpha > 0. A plain getbbox()
+# trim on one of those files moves nothing: the "bounds" are the whole canvas, the
+# figure stays small inside its padding, and the waist fraction then measures from
+# the top of the empty canvas instead of the top of the head. Measured on the
+# reframed line-up: getbbox() returned 2047x2031 where the figure was 1724x1652.
+# Flooring the alpha first fixes the trim and drops the dust from the shipped file,
+# where it would otherwise cost bytes in both codecs for nothing.
+ALPHA_FLOOR = 16
+
+
+def trim_alpha(im: Image.Image) -> Image.Image:
+    """Crop to the figure's own bounds, ignoring sub-threshold alpha dust."""
+    a = im.getchannel("A")
+    solid = a.point(lambda v: 255 if v > ALPHA_FLOOR else 0)
+    bbox = solid.getbbox()
+    if bbox is None:
+        return im
+    im.putalpha(a.point(lambda v: v if v > ALPHA_FLOOR else 0))
+    return im.crop(bbox)
+
+
 def save_ladder(im: Image.Image, out_dir: pathlib.Path, stem: str, widths, q_avif: int, q_webp: int) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     for w in widths:
+        if w > im.width * 1.02:
+            print(f"  ! {stem}-{w} upscales from {im.width}px — bytes without detail")
         frame = im.resize((w, round(im.height * w / im.width)), Image.LANCZOS)
         avif = out_dir / f"{stem}-{w}.avif"
         webp_path = out_dir / f"{stem}-{w}.webp"
@@ -279,6 +360,58 @@ def build_header_lockup() -> None:
     print(f"  castle-lite-lockup-tight.svg       {kb(out):6.1f} KB  (derived)")
 
 
+def build_talents() -> None:
+    """Hero line-up cut-outs: trimmed to their alpha bounds, then cropped waist-up.
+
+    Trimming first matters twice over. The PSDs carry different amounts of empty
+    canvas, and the hero aligns the line-up on a shared baseline at a shared height,
+    so without the trim the padding, not the person, would set each one's scale. It
+    also makes the waist fraction mean something — it is measured from the top of the
+    head, which is only the top of the image once the empty canvas is gone.
+
+    The second trim, after the vertical crop, takes back the side margin that the
+    legs were holding open."""
+    if not TALENTS_SRC.is_dir():
+        print(f"\nTalent cut-outs skipped — {TALENTS_SRC.name} not present")
+        return
+    print("\nArusha line-up cut-outs (transparent, waist-up) — AVIF + WebP")
+    for src, slug, waist in TALENTS:
+        path = TALENTS_SRC / src
+        if not path.is_file():
+            print(f"  {slug:<14} MISSING {src}")
+            continue
+        im = Image.open(path).convert("RGBA")
+        im = trim_alpha(im)
+        full_h = im.height
+        im = im.crop((0, 0, im.width, round(full_h * waist)))
+        im = trim_alpha(im)
+        print(f"  {slug:<14} {full_h}px tall -> waist at {waist:.0%} -> "
+              f"{im.width}x{im.height} (aspect {im.width / im.height:.2f})")
+        save_ladder(im, TALENTS_OUT, slug, TALENT_WIDTHS, 72, 86)
+
+
+def build_scenes() -> None:
+    """Arusha walkthrough renders — AVIF + WebP ladders.
+
+    Quality is held a little above the photography. These are synthetic frames: broad
+    flat skies and grass that compress to nothing, but also fine lattice furniture and
+    small legal type set on the banner walls, and that type is the first thing to go
+    when either codec is pushed. The sources are already JPEG, so this is a second
+    generation — another reason not to squeeze.
+    """
+    if not SCENES_SRC.is_dir():
+        print(f"\nWalkthrough scenes skipped — {SCENES_SRC} not present")
+        return
+    print("\nArusha walkthrough scenes — AVIF + WebP")
+    for frame in SCENE_FRAMES:
+        src = SCENES_SRC / f"Castle Lite Arusha{frame}.jpg"
+        if not src.is_file():
+            print(f"  {frame:<6} MISSING {src.name}")
+            continue
+        im = Image.open(src).convert("RGB")
+        save_ladder(im, SCENES_OUT, f"arusha-{frame}", [SCENE_THUMB, *SCENE_WIDTHS], 58, 80)
+
+
 def build_vectors() -> None:
     print("\nVector marks (copied verbatim — already small)")
     for src, dst in VECTORS:
@@ -289,6 +422,12 @@ def build_vectors() -> None:
 
 
 def main() -> int:
+    # The walkthrough renders live under "01 - ARUSHA", not in the brand pack, so this
+    # runs without it.
+    if sys.argv[1:] == ["scenes"]:
+        build_scenes()
+        return 0
+
     if not ASSETS.is_dir():
         print(f"Brand pack not found at {ASSETS}", file=sys.stderr)
         return 1
@@ -298,6 +437,10 @@ def main() -> int:
 
     # `build-assets.py artists` rebuilds only the carousel photography and banner,
     # leaving the existing fonts and plates byte-for-byte as they are.
+    if sys.argv[1:] == ["talents"]:
+        build_talents()
+        return 0
+
     if sys.argv[1:] != ["artists"]:
         build_fonts()
         build_images()
@@ -310,9 +453,13 @@ def main() -> int:
     build_prizes()
     build_snow()
     build_ambassadors()
+    build_talents()
+    build_scenes()
 
     shipped = (*FONTS_OUT.iterdir(), *BRAND_OUT.iterdir(), *ARTISTS_OUT.iterdir(),
-               *EVENTS_OUT.iterdir(), *PRIZES_OUT.iterdir())
+               *EVENTS_OUT.iterdir(), *PRIZES_OUT.iterdir(),
+               *(TALENTS_OUT.iterdir() if TALENTS_OUT.is_dir() else ()),
+               *(SCENES_OUT.iterdir() if SCENES_OUT.is_dir() else ()))
     total = sum(f.stat().st_size for f in shipped)
     print(f"\nTotal shipped assets: {total / 1024:.1f} KB")
     return 0

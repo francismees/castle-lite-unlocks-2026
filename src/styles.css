@@ -300,55 +300,144 @@ img { max-width: 100%; display: block; }
    carousel column is fixed at 540px, the width the artwork overlay was measured at. */
 .hero__inner { position: relative; z-index: 1; display: grid; gap: 28px; }
 @media (min-width: 720px) {
-  .hero__inner { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 30px; }
-  /* Centred while stacked on phones; ranged left once it sits beside the carousel. */
-  .hero__headline { text-align: left; }
-  .hero__title { align-items: flex-start; }
+  /* The line-up bottom-aligns so it can run off the hero's bottom edge; the
+     headline stays optically centred in its own column rather than sinking with
+     it. */
+  .hero__inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: end;
+    gap: 30px;
+    /* Matches .hero's padding-bottom at this width, so the figure reaches the
+       hero's own bottom edge and keeps going. */
+    --popin-bleed: 72px;
+  }
+  .hero__headline { align-self: center; }
+  /* The artboard centres the stack on one axis — the lockup, NYE and ARUSHA all
+     share a centre line — so the headline stays centred inside its own column
+     rather than ranging left against the line-up. */
 }
 
-/* Headline: the Unlocks lockup, "IS BACK!" and the Mwanza date, all sized off one
-   width (--lock) so the stack keeps its proportions. "IS BACK!" is set so its capitals
-   match the height of UNLOCKS in the lockup (0.27 × width); the date line is set to
-   run the lockup's full width (its ink is 9.0em). */
-.hero__headline { --lock: min(290px, calc(100vw - 40px)); }
-@media (min-width: 720px) { .hero__headline { --lock: calc(50vw - 56px); } }
+/* Headline: the Arusha artboard (01 - ARUSHA/LOCK UP.ai), rebuilt line for line.
+   Everything is sized off one width, --lock, which is the width of "NYE" (the widest
+   line), so the stack keeps the artboard's proportions at any viewport. Every factor
+   below is a measurement from the artboard divided by NYE's width there (438.4 pt):
+
+     stacked lockup   0.708 wide, 0.073 above NYE's capitals
+     NYE              Bold, capitals 0.466 tall, tracked -0.063em
+     31 DEC 26        Light, capitals 0.139 tall, tracked -0.086em, 0.070 below NYE
+     ARUSHA           Bold, capitals 0.156 tall, tracked -0.093em, 0.032 below the date,
+                      on a Play Green bar from mid-cap to 0.25 cap below the baseline
+
+   Font sizes are cap height / 0.657 (Ciutadella's cap height). Negative tracking also
+   trails the last letter, so each line gets the same amount back as end padding to
+   stay on the shared centre line. */
+.hero__headline { --lock: min(300px, calc(100vw - 48px)); }
+@media (min-width: 720px) { .hero__headline { --lock: calc(50vw - 80px); } }
 @supports (width: 1cqw) {
   .hero__headline { container-type: inline-size; }
-  .hero__title, .hero__date { --lock: min(100cqw, 290px); }
-  @media (min-width: 720px) { .hero__title, .hero__date { --lock: min(100cqw, 460px); } }
+  .hero__title, .hero__date, .hero__city { --lock: min(100cqw, 300px); }
+  @media (min-width: 720px) { .hero__title, .hero__date, .hero__city { --lock: min(100cqw, 420px); } }
 }
 .hero__headline { text-align: center; }
+/* Fireworks cover the whole hero, above the loop and its scrim (::after, z 0) and
+   below the content (.hero__inner, z 1, later in source). Shells are aimed at the
+   lock-up by the component itself; a full-hero canvas means none is clipped. */
+.hero__fireworks {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
 .hero__title {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: calc(var(--lock) * 0.045);
   font-family: 'Ciutadella Artwork', var(--font);
   letter-spacing: 0;
 }
-.hero__brand { width: var(--lock); max-width: none; height: auto; }
+.hero__brand { width: calc(var(--lock) * 0.708); max-width: none; height: auto; }
 .hero__back {
-  font-size: calc(var(--lock) * 0.27);
-  line-height: 0.9;
-  letter-spacing: -0.02em;
+  display: block;
+  margin-top: calc(var(--lock) * 0.073);
+  font-size: calc(var(--lock) * 0.709);
+  line-height: 0.82;
+  letter-spacing: -0.063em;
+  padding-inline-start: 0.063em;
   text-transform: uppercase;
 }
-/* Same Jolt Blue half-bar as the artist names in the carousel. */
 .hero__date {
-  margin-top: calc(var(--lock) * 0.06);
-  font-family: 'Ciutadella Artwork', var(--font);
-  font-weight: 700;
-  font-size: calc(var(--lock) * 0.108);
-  line-height: 1;
-  letter-spacing: -0.04em;
+  margin-top: calc(var(--lock) * 0.07);
+  font-family: var(--font);
+  font-weight: 300;
+  font-size: calc(var(--lock) * 0.2114);
+  line-height: 0.8;
+  letter-spacing: -0.086em;
+  padding-inline-start: 0.086em;
   text-transform: uppercase;
   color: var(--crisp-white);
 }
-.hero__date span {
-  padding-inline-end: 0.04em;
-  background: linear-gradient(transparent 45.7%, var(--jolt-blue) 45.7%);
+/* Ice NYE (cut-out 1341 x 726). The letters span 1319 of its 1341 px, so 1.06 x --lock
+   sets them a touch wider than the type NYE they replace, which the wider letter
+   spacing of the ice cut needs to keep the same presence. Within the image the frost
+   starts 2% down, the hanging depth ends at 87.5% and the icicles fill the rest: the
+   negative margins line the front faces up where the type's capitals sat and let the
+   icicles hang into the gap above the date instead of pushing it down. */
+.hero__title .hero__back--ice {
+  font-size: 0;
+  letter-spacing: 0;
+  padding: 0;
+  line-height: 0;
+  text-box: none;
+}
+.hero__title .hero__back--ice img {
+  display: block;
+  width: calc(var(--lock) * 1.06);
+  max-width: none;
+  height: auto;
+  margin-top: calc(var(--lock) * -0.012);
+  margin-bottom: calc(var(--lock) * -0.06);
+}
+
+/* Host city on a Play Green half-bar, as on the artboard. White on Play Green is
+   5.0:1 (see the measured palette at the top of this file). */
+.hero__city {
+  margin-top: calc(var(--lock) * 0.032);
+  font-family: 'Ciutadella Artwork', var(--font);
+  font-weight: 700;
+  font-size: calc(var(--lock) * 0.2371);
+  line-height: 1;
+  letter-spacing: -0.093em;
+  text-transform: uppercase;
+  color: var(--crisp-white);
+}
+.hero__city span {
+  padding-inline: 0.02em 0.113em;
+  background: linear-gradient(transparent 50%, var(--play-green) 50%);
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
+}
+/* Where lines can be trimmed to their capitals, spacing and the bar land exactly
+   where the artboard puts them: each line box runs cap top to baseline. */
+@supports (text-box: trim-both cap alphabetic) {
+  .hero__back, .hero__date, .hero__city { line-height: 1; text-box: trim-both cap alphabetic; }
+  .hero__city span {
+    display: inline-block;
+    position: relative;
+    isolation: isolate;
+    text-box: trim-both cap alphabetic;
+    background: none;
+  }
+  .hero__city span::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset-inline: -0.01em 0.083em;
+    top: 49.8%;
+    bottom: calc(0.657em * -0.249);
+    background: var(--play-green);
+  }
 }
 
 /* ═══ Tickets band ════════════════════════════════════════════════════════
@@ -409,6 +498,15 @@ img { max-width: 100%; display: block; }
   box-decoration-break: clone;
 }
 .tickets__date sup { font-size: 0.55em; vertical-align: 0.75em; line-height: 0; }
+/* Live: the countdown is gone, so the button takes its slot on the right. Play Green
+   on Jolt Blue is the site's one primary action colour; the white ring lifts it off the
+   band (green on Jolt Blue alone is only 1.6:1 as a shape edge). */
+.tickets__buy {
+  min-width: 240px;
+  text-decoration: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+}
+.tickets__buy:hover { box-shadow: 0 0 0 2px var(--crisp-white), 0 0 0 8px rgba(255, 255, 255, 0.16); }
 
 .countdown { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(8px, 1.6vw, 16px); }
 .countdown__unit {
@@ -1118,6 +1216,53 @@ img { max-width: 100%; display: block; }
   color: var(--crisp-white);
 }
 .lineup__panel sup { font-size: 0.5em; vertical-align: 0.8em; line-height: 0; }
+
+/* ═══ Shows that have already happened ═════════════════════════════════════
+   Mwanza played on 3 October. EventsMap derives "done" from the date against the
+   server clock, so these states switch on by themselves the morning after a show.
+
+   The badge is the campaign's own inversion: Crisp White pill, Jolt Blue type, which
+   measures 8.6:1 — the same pairing as a hovered pin label, so a finished city reads
+   as resolved rather than disabled. The pin itself stops pulsing and drops to 70%,
+   because a sonar ping on a show that has been is the one thing that would still say
+   "coming up". It is never colour alone: the badge carries the word, and a visually
+   hidden sentence follows the city name for anyone who cannot see the pill. */
+.lineup__done,
+.map__done {
+  display: inline-block;
+  border-radius: 999px;
+  background: var(--crisp-white);
+  color: var(--jolt-blue);
+  font-family: var(--font);
+  font-weight: 700;
+  text-transform: uppercase;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.lineup__done {
+  margin-left: 12px;
+  padding: 6px 12px;
+  font-size: clamp(11px, 1.4vw, 14px);
+  letter-spacing: 0.12em;
+  /* Holds the badge off the baseline of a 48px heading. */
+  transform: translateY(-0.18em);
+}
+.map__done {
+  margin-left: 7px;
+  padding: 3px 7px;
+  font-size: 0.82em;
+  letter-spacing: 0.06em;
+}
+/* A finished pin: still fully operable, just no longer advertising itself. */
+.map__pin.is-done { opacity: 0.7; }
+.map__pin.is-done .map__dot::after { animation: none; opacity: 0; }
+.map__pin.is-done .map__dot {
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 0 0 3px rgba(19, 53, 216, 0.75);
+}
+/* Hover and selection stay at full strength, so a past city is never hard to read. */
+.map__pin.is-done:hover,
+.map__pin.is-done[aria-pressed='true'] { opacity: 1; }
 
 /* Lineup cards — a bento of 3D panels. Date and Venue share a row, Headline Artists takes
    a full row, DJs and Hosts share the last. Each card tumbles over on hover (tap on touch)
@@ -1974,11 +2119,1037 @@ html[lang='sw'] .footer__warn { --em: 21.2; }
   .unlocks-lockup { width: min(100%, 340px); }
   /* Vertical room for the ice-castle plate — without it the hero is short enough
      that `cover` crops the crystal away and only the ice floor survives. */
-  .hero { padding: 48px 0 72px; min-height: 580px; display: flex; align-items: center; }
+  /* No bottom padding: the figure, not whitespace, finishes the hero. The headline
+     carries its own bottom inset instead so the copy is not flush to the edge. */
+  .hero { padding: 48px 0 0; min-height: 700px; display: flex; align-items: center; }
   .hero > .wrap { width: 100%; }
-  .hero__inner { grid-template-columns: minmax(0, 1fr) 540px; gap: 54px; }
+  /* The line-up column carries a waist-up figure at 660px, so it is wider than the
+     540px the old full-length cut-outs needed. The headline keeps the free column. */
+  .hero__inner { grid-template-columns: minmax(0, 1fr) 660px; gap: 48px; --popin-bleed: 44px; }
+  .hero__headline { padding-bottom: 64px; }
   .entry { padding: 84px 0; }
   .entry__inner { gap: 36px; }
   .card-form { padding: 32px 30px; }
   .section { padding: 84px 0; }
+}
+
+/* ── Hero line-up pop-in ────────────────────────────────────────────────────
+   The Arusha talent cut-outs introduced one after another.
+
+   The stagger is one custom property per item (--pop-delay) and one class on
+   the root, so the whole reveal is compositor work: transform and opacity
+   only, nothing that triggers layout. That is deliberate — this runs during
+   the hero's first paint, which is the worst possible moment to be animating
+   anything that reflows.
+
+   The settle uses a slight overshoot (the 1.6 in the cubic-bezier) so each
+   cut-out lands with weight instead of gliding to a stop. */
+.popin {
+  container-type: inline-size;
+  /* The cut-outs are stacked absolutely so each one gets the whole column, which
+     leaves the row with no content to take its height from — so it carries its
+     own. Sized off the container, not the viewport, so it scales with the hero
+     column rather than fighting it.
+     The cut-outs are cropped waist-up, so this height buys face, not legs. */
+  height: min(660px, 112cqw);
+  /* Eats the hero's own bottom padding at this width, so the figure finishes against
+     the tickets band rather than on a shelf of background above it. */
+  --popin-bleed: 60px;
+  /* The artboard has the figure standing out of the bottom edge of the hero, not
+     floating inside it on a shelf of background. The negative margin pulls the box
+     past the hero's bottom edge; the hero's own overflow:hidden does the cutting,
+     so the waist crop's bottom edge is never on screen. */
+  margin-bottom: calc(var(--popin-bleed, 0px) * -1);
+}
+.popin__stack {
+  position: relative;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.popin__item {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  /* Anchored to the TOP, not the bottom. The figure is taller than the box and runs
+     off the bottom edge, so the only edge that can crop is the one it grows away
+     from — which means --pop-scale can never take a head off the top of the hero. */
+  align-items: flex-start;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(7%) scale(0.88);
+  /* Opacity settles before the move does, so the outgoing artist is gone before
+     the incoming one finishes rising and the two never read as a dissolve. */
+  transition:
+    opacity 480ms ease,
+    transform 700ms cubic-bezier(0.22, 1.5, 0.36, 1);
+}
+.popin.is-in .popin__item.is-current {
+  opacity: 1;
+  transform: none;
+}
+
+.popin__fig {
+  /* Shrinks to the cut-out's own width. Deliberately NOT a positioning context:
+     the name plate is positioned against .popin__item instead, so it holds its
+     place on the chest no matter how wide this particular cut-out trims. */
+  position: static;
+  /* --pop-scale evens out the cut-outs that were shot at a different distance —
+     see `scale` in config/talents. The item is top-aligned, so the extra height
+     grows DOWNWARD, deepening the bottom bleed rather than threatening the head.
+     max-width is deliberately not capped at 100%: a scaled figure is meant to be
+     wider than the column. */
+  height: calc(100% * var(--pop-scale, 1));
+  /* max-content, not fit-content. fit-content clamps to the column, and a cut-out
+     wider than its column then letterboxes inside object-fit:contain — which puts a
+     band of transparency above the head and floats the figure, the exact thing the
+     bottom bleed is there to prevent. Letting it take its natural width means the
+     painted pixels always fill the declared height; on a phone the shoulders bleed
+     past the column instead, and the hero's overflow:hidden does the cutting. */
+  width: max-content;
+  margin: 0;
+}
+.popin__cut {
+  display: block;
+  /* Normalised by HEIGHT, not width. The cut-outs are cropped waist-up by the asset
+     build but trim to different aspects (0.69–0.92), so matching widths would stand
+     them at visibly different scales. Matching heights puts them on one baseline,
+     which is what lets them hand over without jumping — and --pop-scale on the
+     figure corrects the poses for which equal height is not yet equal scale. */
+  height: 100%;
+  width: auto;
+  /* Opts out of the global `img { max-width: 100% }` reset. With the cap in place a
+     cut-out wider than its column is squeezed and then letterboxed by contain, which
+     reintroduces the transparent band above the head. The figure is meant to bleed
+     past the column on a phone; the hero clips it. */
+  max-width: none;
+  object-fit: contain;
+  object-position: bottom center;
+  /* Cut-outs arrive on transparency; the drop shadow is what seats them against
+     the hero rather than leaving them floating on it. */
+  filter: drop-shadow(0 22px 34px rgba(1, 9, 35, 0.6));
+}
+
+/* Name as a stack of solid Jolt Blue plates, one per line, each hugging its own
+   word rather than ruling across the column. Measured: white on Jolt Blue is
+   8.3:1, and that is what carries the name over the white puffer jackets two of
+   the three cut-outs are wearing — the shadow-only setting this replaces did not,
+   and was flagged here as unresolved.
+
+   It plates across the lower torso, where the marked-up hero puts it — not under
+   their feet, which with a bottom-bleeding figure would be off screen.
+   Positioned against .popin__item (the stable box) rather than the figure, so it
+   holds one place through the handover instead of jumping with each cut-out's
+   trimmed width.
+
+   ANCHORED BY ITS BOTTOM EDGE, which is the part that is not arbitrary. The hero
+   clips the figure at 94.85% of this box — the rest is the deliberate bleed — and
+   the marked position puts the plate's bottom at 91.7%, about 20px clear of that
+   cut. Anchor the TOP there instead and a one-line name still fits, but Juma's
+   two plates run to 105% and the second one is cut in half. Growing the stack
+   upward costs nothing: there is half the figure above it and none below. */
+.popin__name {
+  position: absolute;
+  bottom: 8.3%;
+  inset-inline-start: 27%;
+  inset-inline-end: 0;
+  /* A column of separate boxes, not a wrapping line. Where a name breaks is an
+     editorial decision taken once in `nameLines` in config/talents, not left to
+     whatever width the viewport happens to hand it. flex-start is what makes each
+     plate hug its own word instead of all of them ruling to one edge. */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1em;
+  font-family: 'Ciutadella Artwork', var(--font);
+  font-weight: 700;
+  /* Third size this plate has had, and the ramp is measured rather than picked:
+     the marked-up hero drew the tag 302px wide against the 202px it was rendering,
+     so the ceiling is scaled by that ratio (56 -> 80) and the middle term with it,
+     which keeps the same ramp shape down to phones instead of making the jump a
+     desktop-only change.
+     Checked at both ends: the longest name, NATURE, renders 291px into a 482px
+     slot here and 175px into 245px at 375px wide, so nothing reaches its edge. */
+  font-size: clamp(22px, 14.3cqw, 80px);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+.popin__word {
+  background: var(--jolt-blue);
+  color: var(--crisp-white);
+  /* line-height 1 makes the line box exactly one em with the baseline pinned at
+     78% of it, because 'Ciutadella Artwork' overrides its vertical metrics (see
+     styles/fonts.css) — the same pinning the carousel bar depends on, and the
+     reason these ems land in the same place on Windows as on macOS.
+
+     For an all-caps setting that leaves about 0.06em over the capitals against
+     0.22em under the baseline, so the plate reads bottom-heavy until the top
+     padding makes up the difference. Hence the asymmetry: it is correcting for
+     the descender space that uppercase never uses.
+
+     All of it in ems, so the plate keeps its proportions down the clamp instead
+     of going slab-sided once the type shrinks on a phone. */
+  line-height: 1;
+  padding: 0.14em 0.2em 0;
+  /* The breaks are already decided upstream; nothing may introduce another one
+     inside a plate. */
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The rotation itself is switched off in the component, so there is no handover
+     left to animate — this only stops the first artist sliding in. */
+  .popin__item {
+    transform: none;
+    transition: opacity 240ms linear;
+  }
+}
+
+/* No talent cut-out cleared yet: the hero is one column and the headline
+   centres, instead of sitting beside 540px of nothing. */
+@media (min-width: 720px) {
+  .hero__inner--solo { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ── Hero background loop ───────────────────────────────────────────────────
+   The looping tunnel sits above the still plate on ::before (which stays as the
+   poster and the fallback when the file fails or motion is reduced) and below
+   the content on .hero__inner. The plate carries its scrim inside --plate, so
+   the loop needs its own at the same strength on ::after — without it the
+   measured 5.5:1 on the headline does not hold over a bright frame. */
+.hero__video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+.hero--loop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(rgba(1, 9, 35, 0.55), rgba(1, 9, 35, 0.78));
+  pointer-events: none;
+}
+
+/* ═══ 3D venue viewer ══════════════════════════════════════════════════════
+   A full-screen overlay, not a page. It sits above whatever the visitor was
+   doing — including a half-finished checkout — and leaves it untouched. */
+
+.venue {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: #05070f;
+  display: flex;
+  flex-direction: column;
+}
+
+.venue__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none; /* the scene owns drag and pinch */
+}
+
+.venue__top {
+  position: relative;
+  z-index: 2; /* Close stays reachable over the loading screen */
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) var(--gutter) 0;
+}
+
+.venue__close,
+.venue__reset {
+  min-height: var(--tap);
+  padding: 10px 16px;
+  border: 1px solid var(--glass-line);
+  border-radius: 999px;
+  background: var(--glass-panel);
+  backdrop-filter: blur(10px);
+  color: var(--crisp-white);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.venue__close:hover,
+.venue__reset:hover { background: rgba(1, 9, 35, 0.75); }
+
+.venue__state {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  color: var(--ice);
+  text-align: center;
+  padding: var(--gutter);
+}
+
+.venue__spin {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--ice-line);
+  border-top-color: var(--jolt-blue);
+  border-radius: 50%;
+  animation: venue-spin 0.9s linear infinite;
+}
+
+@keyframes venue-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .venue__spin { animation-duration: 2.4s; }
+}
+
+/* The wait while the 3D builds (Loading.tsx): the snowcastle forms like frost over a
+   cold glow, under the campaign name, with one line at a time beneath it. */
+.vload {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  padding: var(--gutter);
+  text-align: center;
+  background: radial-gradient(60% 45% at 50% 46%, rgba(19, 53, 216, 0.34), rgba(1, 9, 35, 0) 70%), var(--impact-blue);
+}
+.vload__mark {
+  position: relative;
+  width: 104px;
+  margin-bottom: 22px;
+}
+/* The glow breathes with the fill, so the mark seems to light as it freezes. */
+.vload__mark::before {
+  content: '';
+  position: absolute;
+  inset: -40%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(19, 53, 216, 0.75), rgba(19, 53, 216, 0));
+  animation: vload-glow 3.2s var(--ease, ease) infinite;
+}
+.vload__mark svg { position: relative; display: block; width: 100%; height: auto; overflow: visible; }
+.vload__mark path {
+  fill: var(--crisp-white);
+  fill-opacity: 0;
+  stroke: var(--crisp-white);
+  stroke-width: 1.4px;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: vload-form 3.2s cubic-bezier(0.55, 0.1, 0.3, 1) infinite;
+}
+@keyframes vload-form {
+  0% { stroke-dashoffset: 1; fill-opacity: 0; opacity: 1; }
+  48% { stroke-dashoffset: 0; fill-opacity: 0; }
+  62% { stroke-dashoffset: 0; fill-opacity: 1; }
+  86% { opacity: 1; }
+  100% { stroke-dashoffset: 0; fill-opacity: 1; opacity: 0; }
+}
+@keyframes vload-glow {
+  0%, 40% { opacity: 0.25; transform: scale(0.85); }
+  62% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.05); }
+}
+.vload__title {
+  margin: 0;
+  font-family: 'Ciutadella Artwork', var(--font);
+  font-size: clamp(1.35rem, 4.6vw, 1.9rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  color: var(--crisp-white);
+}
+/* A fixed two-line slot: lines of different length must not nudge the mark. */
+.vload__line {
+  min-height: calc(2 * 1.45em);
+  max-width: 30ch;
+  margin: 10px 0 0;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--ice);
+}
+.vload__line span {
+  display: block;
+  animation: vload-line 3.6s ease both;
+}
+@keyframes vload-line {
+  0% { opacity: 0; }
+  10%, 88% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vload__mark path { animation: none; stroke-dashoffset: 0; fill-opacity: 1; }
+  .vload__mark::before { animation: none; opacity: 0.6; }
+  .vload__line span { animation: none; }
+}
+
+/* The panel is bottom-anchored on phones, where it is the natural reach zone,
+   and becomes a side rail once there is width to spare. */
+.venue__panel {
+  position: relative;
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px var(--gutter) calc(env(safe-area-inset-bottom, 0px) + 14px);
+  background: linear-gradient(to top, rgba(5, 7, 15, 0.95) 55%, rgba(5, 7, 15, 0));
+}
+
+.venue__card {
+  border: 1px solid var(--glass-line);
+  border-radius: var(--radius-lg);
+  background: var(--glass-panel);
+  backdrop-filter: blur(12px);
+  padding: 14px 16px;
+  color: var(--crisp-white);
+}
+
+.venue__cardhead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.venue__tier {
+  margin: 0 0 2px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.venue__tier--starr-castle { color: #6f9bff; }
+.venue__tier--cold-rush { color: var(--ice-dim); }
+
+.venue__id { margin: 0; font-size: 1.3rem; line-height: 1.15; }
+.venue__meta { margin: 4px 0 0; font-size: 0.86rem; color: var(--ice); }
+.venue__price { margin: 0; font-size: 1.2rem; font-weight: 700; white-space: nowrap; }
+.venue__hint { margin: 10px 0 0; font-size: 0.82rem; color: var(--ice-dim); }
+
+.venue__choose { width: 100%; margin-top: 12px; }
+
+.venue__back {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  border: 0;
+  background: none;
+  color: var(--ice);
+  font: inherit;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.venue__legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: var(--ice);
+}
+
+.venue__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.venue__dot--starr-castle { background: #2a5cff; }
+.venue__dot--cold-rush { background: #2b3f86; margin-left: 10px; }
+
+.venue__filters { display: flex; gap: 8px; }
+
+.venue__filter {
+  flex: 1;
+  min-height: var(--tap);
+  border: 1px solid var(--glass-line);
+  border-radius: 999px;
+  background: var(--glass-panel);
+  color: var(--ice);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.venue__filter.is-on {
+  background: var(--jolt-blue);
+  border-color: var(--jolt-blue);
+  color: var(--crisp-white);
+}
+
+.venue__list {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  list-style: none;
+  margin: 0;
+  padding: 2px 0 4px;
+  scrollbar-width: thin;
+  overscroll-behavior-x: contain;
+}
+
+.venue__chip {
+  min-width: 52px;
+  min-height: 38px;
+  border: 1px solid var(--glass-line);
+  border-radius: 10px;
+  background: rgba(16, 32, 96, 0.55);
+  color: var(--crisp-white);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.venue__chip--starr-castle { background: rgba(42, 92, 255, 0.45); }
+.venue__chip.is-on { background: var(--crisp-white); color: var(--impact-blue); }
+
+/* The walk in — the fourteen approved angles, as a picker over the live 3D.
+   The thumbnails are the renders the cameras were matched against, so the rail is
+   both the control and the proof that the angle on screen is the approved one. */
+/* The dock: the walk rail and the nav pad share the bottom of the screen. On a
+   phone the pad sits above the rail's right end, beside the angle's title, and the
+   rail runs the full width in two scrollable rows; with width to spare the rail runs
+   almost the full width in one row and the pad takes the corner. */
+.venue__dock {
+  position: relative;
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'head nav' 'rail rail';
+  align-items: end;
+  gap: 10px 12px;
+  padding: 0 var(--gutter) calc(env(safe-area-inset-bottom, 0px) + 12px);
+  pointer-events: none; /* the canvas keeps the gaps; only the controls take input */
+}
+/* Present only while no table is picked, and it already claims the free space —
+   so the sheet below must give its own auto margin up or the two split the gap. */
+.venue__dock + .venue__panel { margin-top: 0; }
+
+/* The walk in — the fourteen approved angles, as a picker over the live 3D.
+   The thumbnails are the renders the cameras were matched against, so the rail is
+   both the control and the proof that the angle on screen is the approved one. */
+.venue__walk { display: contents; }
+
+.venue__walkhead {
+  grid-area: head;
+  align-self: end;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--crisp-white);
+  text-shadow: 0 1px 10px rgba(5, 7, 15, 0.9);
+}
+.venue__walknum {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ice);
+}
+.venue__walkrule {
+  width: 18px;
+  height: 1px;
+  background: var(--glass-line);
+}
+.venue__walktitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.venue__rail {
+  grid-area: rail;
+  pointer-events: auto;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, auto);
+  grid-auto-columns: 92px;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.venue__rail::-webkit-scrollbar { display: none; }
+
+.venue__thumb {
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+  line-height: 0;
+  opacity: 0.5;
+  transition: opacity 160ms ease, border-color 160ms ease;
+}
+.venue__thumb img { width: 100%; height: auto; display: block; }
+.venue__thumb:hover,
+.venue__thumb:focus-visible { opacity: 0.85; }
+.venue__thumb[aria-current='true'] {
+  opacity: 1;
+  border-color: var(--crisp-white);
+}
+
+@media (min-width: 860px) {
+  .venue__dock {
+    grid-template-areas: 'head nav' 'rail nav';
+    gap: 10px 16px;
+    padding: 0 var(--gutter) var(--gutter);
+  }
+  .venue__rail {
+    display: flex;
+    padding-bottom: 0;
+  }
+  /* All fourteen share the width, so every angle is in view on a desktop; only
+     below ~72px each (a narrow window) does the rail fall back to scrolling. */
+  .venue__thumb { flex: 1 1 0; min-width: 72px; max-width: 184px; }
+}
+
+/* The nav pad: Move mode / Turn mode, four arrows, closer / further. The mode
+   switch spans exactly the width of the pad and zoom under it, so the three read as
+   one instrument rather than a stack of parts. */
+.venue__nav {
+  grid-area: nav;
+  pointer-events: auto;
+  display: grid;
+  width: max-content;
+  gap: 8px;
+}
+.venue__navmode,
+.venue__pad,
+.venue__zoom {
+  border: 1px solid var(--glass-line);
+  background: var(--glass-panel);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.venue__navmode {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 3px;
+  border-radius: 999px;
+}
+.venue__navmodebtn {
+  display: grid;
+  place-items: center;
+  min-height: 38px;
+  padding: 0 10px;
+  white-space: nowrap;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--ice);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.venue__navmodebtn.is-on { background: var(--jolt-blue); color: var(--crisp-white); }
+.venue__navbody {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.venue__pad {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+}
+.venue__padbtn,
+.venue__zoombtn {
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  color: var(--crisp-white);
+  cursor: pointer;
+  touch-action: none; /* a held arrow must not scroll or zoom the page */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.venue__padbtn {
+  position: absolute;
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: 50%;
+}
+.venue__padbtn--up { top: 3px; left: calc(50% - var(--tap) / 2); }
+.venue__padbtn--down { bottom: 3px; left: calc(50% - var(--tap) / 2); }
+.venue__padbtn--left { left: 3px; top: calc(50% - var(--tap) / 2); }
+.venue__padbtn--right { right: 3px; top: calc(50% - var(--tap) / 2); }
+.venue__padhub {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ice);
+}
+.venue__zoom {
+  display: flex;
+  flex-direction: column;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.venue__zoombtn { width: var(--tap); height: 52px; }
+.venue__zoombtn + .venue__zoombtn { border-top: 1px solid var(--glass-line); }
+.venue__padbtn:hover,
+.venue__zoombtn:hover { background: rgba(255, 255, 255, 0.1); }
+.venue__padbtn:active,
+.venue__zoombtn:active { background: var(--jolt-blue); }
+.venue__padbtn:focus-visible,
+.venue__zoombtn:focus-visible,
+.venue__navmodebtn:focus-visible {
+  outline: 2px solid var(--crisp-white);
+  outline-offset: -2px;
+}
+.venue__nav svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.venue__padhub svg { width: 16px; height: 16px; stroke-width: 2; }
+
+@media (max-width: 859px) {
+  .venue__pad { width: 120px; height: 120px; }
+  .venue__zoombtn { height: 46px; }
+  .venue__navmodebtn { min-height: 36px; padding: 0 8px; font-size: 0.84rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .venue__thumb { transition-duration: 1ms; }
+}
+
+@media (min-width: 860px) {
+  .venue__panel {
+    position: absolute;
+    right: var(--gutter);
+    bottom: var(--gutter);
+    width: 360px;
+    margin: 0;
+    border-radius: var(--radius-lg);
+    background: none;
+    padding: 0;
+  }
+  .venue__list { flex-wrap: wrap; max-height: 150px; overflow-y: auto; }
+}
+
+/* The entry point that appears on the page itself. */
+.venue-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--tap);
+  padding: 12px 22px;
+  border: 1px solid var(--glass-line);
+  border-radius: 999px;
+  background: var(--jolt-blue);
+  color: var(--crisp-white);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s var(--ease);
+}
+
+.venue-cta:hover { background: var(--jolt-blue-deep); }
+
+/* Home-screen entry band for the 3D venue. */
+.venue-band { background: var(--impact-blue); padding: 48px 0; }
+
+.venue-band__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.venue-band__title { margin: 0; font-size: clamp(1.5rem, 4vw, 2.1rem); color: var(--crisp-white); }
+.venue-band__copy { margin: 8px 0 0; max-width: 46ch; color: var(--ice); }
+/* Same size as the tickets band's Buy tickets (.btn + .tickets__buy): the two CTAs line up
+   down the right edge. Jolt Blue with the same white ring, so it reads on Impact Blue. */
+.btn--jolt { background: var(--jolt-blue); color: var(--crisp-white); }
+.btn--jolt:hover { background: var(--jolt-blue-deep); }
+.venue-band__cta {
+  min-width: 240px;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+}
+.venue-band__cta:hover { box-shadow: 0 0 0 2px var(--crisp-white), 0 0 0 8px rgba(255, 255, 255, 0.16); }
+
+/* ═══ Table scene: the ticket journey's 3D table picker ═══════════════════
+   One bold thing, the hologram tag on the table in focus; everything else is quiet
+   glass over the night scene so the map does the explaining. Tier colours match the
+   pads in the 3D (PICK_COLOUR): Starr Castle glacier white, Cold Rush lifted Jolt
+   Blue, Play Green for tables already in the basket. */
+.tpick {
+  --holo: 191, 230, 255;
+  --starr: #cfeaff;
+  --rush: #2f62ff;
+  --taken: #18c47a;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  overflow: hidden;
+  background: var(--impact-blue);
+  color: var(--crisp-white);
+  font-family: var(--font);
+}
+.tpick__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.tpick__labels { position: absolute; inset: 0; pointer-events: none; }
+.tpick__labels > * { position: absolute; left: 0; top: 0; will-change: transform; }
+
+/* Floor signs for the zones. */
+.tpick__zone {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  text-align: center;
+  white-space: nowrap;
+  text-shadow: 0 1px 10px rgba(1, 9, 35, 0.9), 0 0 2px rgba(1, 9, 35, 0.9);
+  transition: opacity 0.35s var(--ease);
+}
+.tpick__zone b { font-family: 'Ciutadella Artwork', var(--font); font-size: 17px; font-weight: 700; line-height: 1; text-transform: uppercase; }
+.tpick__zone span { font-size: 12px; color: var(--ice); }
+.tpick__zone--starr-castle b { color: var(--starr); }
+.tpick__zone--cold-rush b { color: #8eabff; }
+.tpick__zone--stage b { font-size: 22px; letter-spacing: 0.02em; }
+.tpick__zone.is-dim { opacity: 0.4; }
+.tpick__zone.is-hidden { opacity: 0; }
+
+/* The hologram. Positioned every frame by transform from the scene, so its entrance
+   animates `scale` and `opacity`, which compose with that transform instead of
+   fighting it. */
+.holo {
+  display: grid;
+  justify-items: start;
+  gap: 3px;
+  min-width: 176px;
+  padding: 12px 18px 14px 16px;
+  border: 1px solid rgba(var(--holo), 0.75);
+  border-radius: 4px;
+  /* Scan lines over an ice tint over dark glass: the dark base is what keeps the
+     type legible when the tag floats in front of the lit stage. */
+  background:
+    repeating-linear-gradient(0deg, rgba(var(--holo), 0.08) 0 1px, transparent 1px 3px),
+    linear-gradient(180deg, rgba(120, 190, 255, 0.24), rgba(47, 98, 255, 0.1)),
+    linear-gradient(180deg, rgba(8, 32, 104, 0.74), rgba(1, 9, 35, 0.8));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 0 26px rgba(90, 170, 255, 0.45), inset 0 0 22px rgba(var(--holo), 0.18);
+  transform-origin: 50% 100%;
+  animation: holo-in 0.5s var(--ease) both;
+}
+.holo::before,
+.holo::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgb(var(--holo));
+}
+.holo::before { top: -4px; left: -4px; border-right: 0; border-bottom: 0; }
+.holo::after { right: -4px; bottom: -4px; border-left: 0; border-top: 0; }
+.holo__tier { font-size: 13px; font-weight: 700; letter-spacing: 0.03em; color: rgb(var(--holo)); }
+.holo__id {
+  font-family: 'Ciutadella Artwork', var(--font);
+  font-size: 54px;
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  text-shadow: 0 0 18px rgba(120, 200, 255, 0.85);
+}
+.holo__facts { font-size: 13px; color: #eef7ff; }
+.holo__flag { margin-top: 4px; padding: 3px 8px; border-radius: 999px; background: var(--taken); font-size: 12px; font-weight: 700; color: var(--impact-blue); }
+.holo--cold-rush { --holo: 150, 180, 255; }
+.holo.is-taken { --holo: 125, 240, 174; }
+.tpick__beam {
+  width: 2px;
+  margin-left: -1px;
+  background: linear-gradient(rgba(191, 230, 255, 0.95), rgba(191, 230, 255, 0));
+  box-shadow: 0 0 10px rgba(120, 200, 255, 0.8);
+}
+@keyframes holo-in {
+  0% { opacity: 0; scale: 1 0.08; }
+  45% { opacity: 0.95; scale: 1 1.04; }
+  58% { opacity: 0.45; }
+  72% { opacity: 1; scale: 1 1; }
+  100% { opacity: 1; scale: 1 1; }
+}
+
+/* Top controls. */
+.tpick__top {
+  position: absolute;
+  inset: calc(14px + env(safe-area-inset-top)) 14px auto;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.tpick__close,
+.tpick__all {
+  pointer-events: auto;
+  min-height: var(--tap);
+  padding: 0 18px;
+  border: 1px solid var(--glass-line);
+  border-radius: 999px;
+  background: rgba(1, 9, 35, 0.66);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--crisp-white);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tpick__state {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 16px;
+  padding: 24px;
+  text-align: center;
+}
+.tpick__spin {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.18);
+  border-top-color: var(--crisp-white);
+  animation: tpick-spin 0.9s linear infinite;
+}
+@keyframes tpick-spin { to { transform: rotate(360deg); } }
+
+/* The panel: a bottom sheet on phones, a card bottom-left from tablet up. */
+.tpick__panel {
+  position: absolute;
+  inset: auto 0 0;
+  display: grid;
+  gap: 14px;
+  padding: 18px 18px calc(18px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--glass-line);
+  border-radius: 22px 22px 0 0;
+  background: rgba(1, 9, 35, 0.84);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+@media (min-width: 760px) {
+  .tpick__panel {
+    inset: auto auto 24px 24px;
+    width: 360px;
+    padding: 22px;
+    border: 1px solid var(--glass-line);
+    border-radius: var(--radius-lg);
+  }
+}
+.tpick__title {
+  font-family: 'Ciutadella Artwork', var(--font);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+.tpick__slot { margin-top: 4px; font-size: 14px; color: var(--ice); }
+.tpick__intro { font-size: 14px; line-height: 1.45; color: var(--ice); }
+/* On a phone the map needs the room: the legend says enough without the sentence. */
+@media (max-width: 759px) {
+  .tpick__intro { display: none; }
+  .tpick__panel { gap: 12px; }
+  .tpick__title { font-size: 21px; }
+}
+.tpick__dot { display: inline-block; width: 11px; height: 11px; margin-right: 8px; border-radius: 50%; vertical-align: 0.05em; }
+.tpick__dot--starr-castle { background: var(--starr); box-shadow: 0 0 8px rgba(207, 234, 255, 0.8); }
+.tpick__dot--cold-rush { background: var(--rush); box-shadow: 0 0 8px rgba(47, 98, 255, 0.8); }
+.tpick__dot--taken { background: var(--taken); }
+.tpick__legend { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; font-size: 14px; }
+.tpick__legend b { font-weight: 700; }
+.tpick__legend .is-dim { opacity: 0.55; }
+.tpick__legend em { font-style: normal; color: var(--ice-dim); }
+
+.tpick__flip { display: grid; grid-template-columns: 48px minmax(0, 1fr) 48px; align-items: center; gap: 8px; }
+.tpick__arrow {
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--glass-line);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--crisp-white);
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+.tpick__arrow:hover { background: rgba(255, 255, 255, 0.14); }
+.tpick__num { display: grid; justify-items: center; }
+.tpick__id { font-family: 'Ciutadella Artwork', var(--font); font-size: 40px; font-weight: 700; line-height: 1; }
+.tpick__count { margin-top: 4px; font-size: 12px; color: var(--ice); }
+.tpick__seat {
+  justify-self: center;
+  min-height: var(--tap);
+  padding: 0 14px;
+  border: 0;
+  background: none;
+  color: var(--glass-mint);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+.tpick__links { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 10px; }
+.tpick__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--tap);
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--crisp-white);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tpick__back:hover { background: rgba(255, 255, 255, 0.14); }
+.tpick__choose { width: 100%; }
+.tpick__choose:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
+
+.tpick :focus-visible { outline: 2px solid var(--crisp-white); outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .holo { animation: none; }
+  .tpick__spin { animation-duration: 2.4s; }
 }

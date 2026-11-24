@@ -10,6 +10,14 @@
    copy ever needs glyphs outside that subset.
    ═══════════════════════════════════════════════════════════════════════════ */
 
+/* Light: only the hero date line uses it. */
+@font-face {
+  font-family: 'Ciutadella';
+  src: url('/fonts/ciutadella-300.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
 @font-face {
   font-family: 'Ciutadella';
   src: url('/fonts/ciutadella-400.woff2') format('woff2');
