@@ -3105,6 +3105,17 @@ export class VenueScene {
     this.controls.screenSpacePanning = false
   }
 
+  /**
+   * Hand the camera to the app alone: no drag, pinch, wheel or keys. Every scripted move
+   * (establish, frameTable, tablesOverview, focusTable) still runs, since they drive the
+   * camera directly and OrbitControls only stops listening. Taps still reach handleTap.
+   * Used by the table picker while free looking is parked (FREE_LOOK in TablePicker).
+   */
+  lockCamera() {
+    this.roaming = false
+    this.controls.enabled = false
+  }
+
   private takeWheel() {
     this.touring = false
     cancelAnimationFrame(this.glideRaf)

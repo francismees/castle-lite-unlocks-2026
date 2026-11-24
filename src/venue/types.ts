@@ -16,7 +16,7 @@ export type Tier = 'starr-castle' | 'cold-rush'
 export interface VenueTable {
   /**
    * A01-A30 / B01-B30: one per VVIP set, the blue coffee table in the crook of its L of
-   * sofas. Numbered from the stage back; 01-15 is always Starr Castle.
+   * sofas. Numbered from the stage back; 01-15 is always DND in My Castle.
    */
   id: string
   platform: 'A' | 'B'
@@ -56,8 +56,8 @@ export interface Venue {
 }
 
 export const TIER_LABEL: Record<Tier, string> = {
-  'starr-castle': 'Starr Castle',
-  'cold-rush': 'Cold Rush',
+  'starr-castle': 'DND in My Castle',
+  'cold-rush': 'Extra Cold Charm',
 }
 
 /** Brand-accurate tier colours, sampled from the campaign artwork in the GLB. */
@@ -67,8 +67,8 @@ export const TIER_COLOUR: Record<Tier, number> = {
 }
 
 /**
- * Tier colours for the table picker, which is seen at night from the air: Starr Castle
- * glacier white, Cold Rush Jolt Blue lifted so it reads against the dark ground.
+ * Tier colours for the table picker, which is seen at night from the air: DND in My Castle
+ * glacier white, Extra Cold Charm Jolt Blue lifted so it reads against the dark ground.
  * (TIER_COLOUR above is the artwork-accurate pair the walkthrough's markers use.)
  */
 export const PICK_COLOUR: Record<Tier, number> = {

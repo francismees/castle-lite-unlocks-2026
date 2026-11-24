@@ -24,7 +24,8 @@ import '../styles.css'
  * package lit, hologram tag on the table in focus. With none of them it is the
  * walkthrough (VenueViewer), as the microsite's "The experience" shows it.
  *
- * Messages to the parent, { source: 'cl-venue', action: 'choose' | 'close', table? }.
+ * Messages to the parent, { source: 'cl-venue', action: 'choose' | 'switch' | 'close', table? }.
+ * 'switch' is a table of the OTHER package that the buyer asked to move this ticket to.
  * A chosen table carries only its public facts (id, platform, row, tier, price).
  *
  * Opened directly rather than embedded, closing goes back to the microsite.
@@ -47,7 +48,13 @@ const num = (k: string) => {
   const v = Number(q.get(k))
   return Number.isInteger(v) && v > 0 && v <= 20 ? v : undefined
 }
-const tableMode = pick || !!tier || q.has('table')
+/**
+ * The free walkthrough (orbit, nav pad, the fourteen stops) is parked while the rest of
+ * the 3D is reworked (Francis, 24 Nov 2026): venue.html with no query opens the table
+ * scene too, to look at and flip through. Set true to bring the walkthrough back.
+ */
+const WALKTHROUGH = false
+const tableMode = !WALKTHROUGH || pick || !!tier || q.has('table')
 const table = q.get('table') ?? undefined
 const taken = (q.get('taken') ?? '').split(',').filter(Boolean)
 const embedded = window.parent !== window
@@ -59,7 +66,8 @@ const target = (() => {
   }
 })()
 
-type Msg = { action: 'choose'; table: Pick<VenueTable, 'id' | 'platform' | 'row' | 'seat' | 'tier' | 'price'> } | { action: 'close' }
+type Facts = Pick<VenueTable, 'id' | 'platform' | 'row' | 'seat' | 'tier' | 'price'>
+type Msg = { action: 'choose' | 'switch'; table: Facts } | { action: 'close' }
 
 function post(msg: Msg) {
   window.parent.postMessage({ source: 'cl-venue', ...msg }, target)
@@ -71,10 +79,12 @@ function Standalone() {
     else window.location.href = import.meta.env.BASE_URL
   }, [])
 
-  const choose = useCallback((t: VenueTable) => {
+  const send = useCallback((action: 'choose' | 'switch', t: VenueTable) => {
     const { id, platform, row, seat, tier, price } = t
-    post({ action: 'choose', table: { id, platform, row, seat, tier, price } })
+    post({ action, table: { id, platform, row, seat, tier, price } })
   }, [])
+  const choose = useCallback((t: VenueTable) => send('choose', t), [send])
+  const switchTo = useCallback((t: VenueTable) => send('switch', t), [send])
 
   if (tableMode) {
     return (
@@ -86,6 +96,7 @@ function Standalone() {
         of={num('of')}
         taken={taken}
         onChoose={pick && embedded ? choose : undefined}
+        onSwitch={pick && embedded ? switchTo : undefined}
         onClose={close}
         embedded={embedded}
       />

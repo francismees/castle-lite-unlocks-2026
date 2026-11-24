@@ -318,8 +318,8 @@ export function VenueViewer({
                 standing VIP section. Tap any table to see its view of the stage.
               </p>
               <div className="venue__legend">
-                <span className="venue__dot venue__dot--starr-castle" /> Starr Castle · 5M
-                <span className="venue__dot venue__dot--cold-rush" /> Cold Rush · 3M
+                <span className="venue__dot venue__dot--starr-castle" /> DND in My Castle · 5M
+                <span className="venue__dot venue__dot--cold-rush" /> Extra Cold Charm · 3M
               </div>
             </div>
           )}

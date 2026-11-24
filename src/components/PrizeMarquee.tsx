@@ -5,7 +5,6 @@ import { campaign, formatPrize } from '../config/campaign'
 import type { Str } from '../i18n/strings'
 import { usePrefersReducedMotion } from '../lib/hooks'
 import { IconChevron, IconPause, IconPlay } from './Icons'
-import { MoneyStack } from './MoneyStack'
 
 /**
  * What You Can Unlock — a full-width band on the Blue Jolt plate, with every prize on a
@@ -142,7 +141,6 @@ export function PrizeMarquee() {
       card: (
         <CashCard tag={t(s.prizes.cashTag)} title={t(s.features.instantTitle)}>
           <p className="pcard__amount">{formatPrize(campaign.instantPrize, lang)}</p>
-          <MoneyStack level={1} />
           <p className="pcard__body">{t(s.features.instantBody)}</p>
         </CashCard>
       ),
@@ -152,7 +150,6 @@ export function PrizeMarquee() {
       card: (
         <CashCard tag={t(s.prizes.cashTag)} title={t(s.features.weeklyTitle)}>
           <p className="pcard__amount">{formatPrize(campaign.weeklyPrize1, lang)}</p>
-          <MoneyStack level={2} />
           <p className="pcard__body">
             {t(s.features.weeklyTierBody).replace('{count}', String(campaign.weeklyPrize1Count))}
           </p>
@@ -164,7 +161,6 @@ export function PrizeMarquee() {
       card: (
         <CashCard tag={t(s.prizes.cashTag)} title={t(s.features.weeklyTitle)}>
           <p className="pcard__amount">{formatPrize(campaign.weeklyPrize2, lang)}</p>
-          <MoneyStack level={3} />
           <p className="pcard__body">
             {t(s.features.weeklyTopBody).replace('{count}', String(campaign.weeklyPrize2Count))}
           </p>

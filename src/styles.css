@@ -1576,7 +1576,7 @@ img { max-width: 100%; display: block; }
 
 .prizes {
   margin-top: 64px;
-  padding: 56px 0 44px;
+  padding: 44px 0 32px;
   position: relative;
   overflow: hidden;
   background-color: var(--jolt-blue);
@@ -1752,7 +1752,6 @@ img { max-width: 100%; display: block; }
 }
 .prizes__row::-webkit-scrollbar { display: none; }
 .prizes__row > li { scroll-snap-align: start; }
-.prizes__row .pcard { min-height: 400px; }
 @media (min-width: 860px) {
   .prizes__row {
     grid-auto-flow: row;
@@ -1762,22 +1761,10 @@ img { max-width: 100%; display: block; }
     padding-inline: 0;
     overflow: visible;
   }
-  .prizes__row .pcard { min-height: 440px; }
-  /* Three lines for every explanation, so the three stacks stand on one line. */
-  .prizes__row .pcard__body { min-height: calc(3 * 1.45em + 16px); }
 }
-/* The stack fills the space between amount and explanation, anchored to its foot so all
-   three stand on the same line and only their height differs. */
-.money { display: block; flex: 1 1 auto; width: 100%; min-height: 150px; margin-top: 10px; }
-.money__glints path { animation: glint 2.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-.money__glints path:nth-child(2) { animation-delay: -0.9s; }
-.money__glints path:nth-child(3) { animation-delay: -1.8s; }
-@keyframes glint { 0%, 100% { opacity: 0; scale: 0.4; } 45%, 55% { opacity: 1; scale: 1; } }
-@media (prefers-reduced-motion: reduce) { .money__glints path { animation: none; opacity: 0.8; } }
 
-/* Cash cards: tag, title and amount sit at the top; the explanation drops to the foot
-   of the card, leaving open space between them. */
-.pcard--cash .pcard__body { margin-top: auto; padding-top: 16px; }
+/* Cash cards: tag, title, amount and explanation in one tight column. */
+.pcard--cash .pcard__body { margin-top: 12px; }
 
 /* ═══ Find Us On the Ground — ambassadors ═══════════════════════════════════
    The cut-out is trimmed to its alpha bounds, so its top edge is the centre ambassador's
@@ -3000,7 +2987,7 @@ html[lang='sw'] .footer__warn { --em: 21.2; }
 /* ═══ Table scene: the ticket journey's 3D table picker ═══════════════════
    One bold thing, the hologram tag on the table in focus; everything else is quiet
    glass over the night scene so the map does the explaining. Tier colours match the
-   pads in the 3D (PICK_COLOUR): Starr Castle glacier white, Cold Rush lifted Jolt
+   pads in the 3D (PICK_COLOUR): DND in My Castle glacier white, Extra Cold Charm lifted Jolt
    Blue, Play Green for tables already in the basket. */
 .tpick {
   --holo: 191, 230, 255;
@@ -3236,6 +3223,123 @@ html[lang='sw'] .footer__warn { --em: 21.2; }
 .tpick__back:hover { background: rgba(255, 255, 255, 0.14); }
 .tpick__choose { width: 100%; }
 .tpick__choose:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
+
+/* The call to flip (FREE_LOOK off: flipping is the way round). Once the opening lands,
+   the next arrow pulses and a tag above it says what it does, with a pointer bobbing
+   down at it. Gone after the first flip or tap. */
+.tpick__nextwrap { position: relative; display: grid; }
+.tpick__arrow.is-nudge {
+  border-color: var(--crisp-white);
+  background: var(--jolt-blue);
+  animation: tpick-pulse 1.8s ease-out infinite;
+}
+@keyframes tpick-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(191, 230, 255, 0.7); }
+  70%, 100% { box-shadow: 0 0 0 16px rgba(191, 230, 255, 0); }
+}
+.tpick__nudge {
+  position: absolute;
+  right: -6px;
+  bottom: calc(100% + 14px);
+  display: grid;
+  justify-items: end;
+  width: max-content;
+  max-width: min(260px, 70vw);
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--crisp-white);
+  color: var(--impact-blue);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: right;
+  box-shadow: 0 10px 28px rgba(1, 9, 35, 0.45);
+  pointer-events: none;
+  animation: tpick-nudge-in 0.35s ease-out both;
+}
+.tpick__nudgehand {
+  position: absolute;
+  right: 14px;
+  top: 100%;
+  width: 22px;
+  height: 22px;
+  color: var(--crisp-white);
+  animation: tpick-bob 1.1s ease-in-out infinite;
+}
+.tpick__nudgehand svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 2px 4px rgba(1, 9, 35, 0.6)); }
+@keyframes tpick-nudge-in { from { opacity: 0; transform: translateY(6px); } }
+@keyframes tpick-bob { 0%, 100% { transform: translateY(-2px); } 50% { transform: translateY(4px); } }
+@media (min-width: 760px) {
+  /* Beside the panel, not over it: the tag sits out on the map to the right of the arrow
+     and the pointer jabs left at it. */
+  .tpick__nudge {
+    left: calc(100% + 26px);
+    right: auto;
+    top: 50%;
+    bottom: auto;
+    justify-items: start;
+    max-width: 240px;
+    padding: 12px 16px;
+    font-size: 16px;
+    text-align: left;
+    animation-name: tpick-nudge-in-x;
+    translate: 0 -50%;
+  }
+  .tpick__nudgehand { top: 50%; right: 100%; margin: -11px 2px 0 0; rotate: 90deg; animation-name: tpick-bob-x; }
+  @keyframes tpick-nudge-in-x { from { opacity: 0; transform: translateX(-8px); } }
+  @keyframes tpick-bob-x { 0%, 100% { transform: translateY(-4px); } 50% { transform: translateY(3px); } }
+}
+
+/* On a phone the tag sits over the legend; the map's own zone labels name both packages,
+   so the legend steps aside until the first flip. */
+@media (max-width: 759px) {
+  .tpick__panel:has(.tpick__nudge) .tpick__legend { visibility: hidden; }
+}
+
+/* A table of the other package, tapped while choosing: the camera shows it, this asks. */
+.holo__flag--other { background: var(--crisp-white); }
+.tpick__ask {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  align-items: end;
+  justify-items: center;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+  background: rgba(1, 9, 35, 0.35);
+}
+/* Off to the right on wider screens, so the table it is asking about stays in view. */
+@media (min-width: 760px) { .tpick__ask { align-items: center; justify-items: end; padding: 24px; background: linear-gradient(90deg, transparent 40%, rgba(1, 9, 35, 0.45)); } }
+.tpick__askcard {
+  display: grid;
+  gap: 12px;
+  width: min(420px, 100%);
+  padding: 22px;
+  border: 1px solid var(--glass-line);
+  border-radius: var(--radius-lg);
+  background: rgba(1, 9, 35, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 24px 60px rgba(1, 9, 35, 0.55);
+  animation: tpick-nudge-in 0.3s ease-out both;
+}
+.tpick__askhead {
+  font-family: 'Ciutadella Artwork', var(--font);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+.tpick__askbody { font-size: 15px; line-height: 1.5; }
+.tpick__asknote { font-size: 13px; line-height: 1.45; color: var(--ice); }
+.tpick__askacts { display: grid; gap: 8px; margin-top: 4px; }
+.tpick__askacts .btn { width: 100%; }
+.tpick__askstay { justify-content: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tpick__arrow.is-nudge { animation: none; box-shadow: 0 0 0 4px rgba(191, 230, 255, 0.45); }
+  .tpick__nudge, .tpick__nudgehand, .tpick__askcard { animation: none; }
+}
 
 .tpick :focus-visible { outline: 2px solid var(--crisp-white); outline-offset: 3px; }
 

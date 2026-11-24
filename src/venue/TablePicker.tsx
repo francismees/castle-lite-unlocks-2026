@@ -20,6 +20,17 @@ import { usePrefersReducedMotion } from '../lib/hooks'
  *   view  table only        look at one table already bought
  */
 
+/**
+ * Free looking (drag to orbit, pinch or wheel to zoom) is parked, not deleted, while the
+ * rest of the 3D is reworked (Francis, 24 Nov 2026). With it off the camera only goes
+ * where the picker sends it: the aerial opening, the overview, a framed table, the
+ * seated view. Set true to hand the camera back to the visitor.
+ */
+const FREE_LOOK = false
+
+/** How long the opening glide takes (establish in scene.ts), before the nudge appears. */
+const NUDGE_AFTER_MS = 2600
+
 export interface TablePickerProps {
   tier?: Tier
   /** Open on this table (a slot being changed, or a table being viewed). */
@@ -31,6 +42,12 @@ export interface TablePickerProps {
   /** Tables in the basket already: visible, not choosable. */
   taken: string[]
   onChoose?: (t: VenueTable) => void
+  /**
+   * The buyer tapped a table of the other package and asked to switch to it: the host
+   * moves this ticket to that package and books the table. Without it the pop-up only
+   * offers to stay.
+   */
+  onSwitch?: (t: VenueTable) => void
   onClose: () => void
   embedded: boolean
 }
@@ -40,7 +57,7 @@ type Phase = 'loading' | 'ready' | 'error'
 /** Where the hologram floats over a table's deck, matching BEACON_HEIGHT in scene.ts. */
 const TAG_LIFT = 3.7
 
-const TIER_NAME: Record<Tier, string> = { 'starr-castle': 'Starr Castle', 'cold-rush': 'Cold Rush' }
+const TIER_NAME: Record<Tier, string> = { 'starr-castle': 'DND in My Castle', 'cold-rush': 'Extra Cold Charm' }
 const TIER_ROWS: Record<Tier, string> = { 'starr-castle': '1–5', 'cold-rush': '6–10' }
 
 const L = {
@@ -76,7 +93,24 @@ const L = {
   taken: { en: 'Table {id} is already in your basket', sw: 'Meza {id} tayari iko kwenye kikapu chako' },
   overview: { en: 'Back to overview', sw: 'Rudi kwenye ramani nzima' },
   pickFirst: { en: 'Pick a table to continue', sw: 'Chagua meza kuendelea' },
+  nudge: { en: 'Tap to see your {tier} tables', sw: 'Gusa kuona meza zako za {tier}' },
+  nudgeLook: { en: 'Tap to flip through the tables', sw: 'Gusa kupitia meza' },
+  askHead: { en: '{id} is a {other} table', sw: '{id} ni meza ya {other}' },
+  askBody: {
+    en: 'Your ticket is for a {tier} table, rows {rows}. {other} tables are in rows {otherRows}, at {price} a table.',
+    sw: 'Tiketi yako ni ya meza ya {tier}, safu {rows}. Meza za {other} ziko safu {otherRows}, kwa {price} kwa meza.',
+  },
+  askLess: { en: 'That is {diff} less.', sw: 'Ni {diff} pungufu.' },
+  askMore: { en: 'That is {diff} more.', sw: 'Ni {diff} zaidi.' },
+  askNote: {
+    en: 'Switching updates your basket. You can change it again before you pay.',
+    sw: 'Ukibadilisha, kikapu chako kitasasishwa. Unaweza kubadilisha tena kabla ya kulipa.',
+  },
+  askSwitch: { en: 'Switch to {other}, table {id}', sw: 'Badilisha kwenda {other}, meza {id}' },
+  askStay: { en: 'Keep my {tier} ticket', sw: 'Baki na tiketi yangu ya {tier}' },
 } as const
+
+const tzs = (n: number) => `TZS ${n.toLocaleString('en-US')}`
 
 const fill = (s: string, v: Record<string, string | number>) => s.replace(/\{(\w+)\}/g, (_, k) => String(v[k] ?? ''))
 
@@ -84,7 +118,7 @@ const fill = (s: string, v: Record<string, string | number>) => s.replace(/\{(\w
 const byNumber = (a: VenueTable, b: VenueTable) =>
   a.platform.localeCompare(b.platform) || a.row - b.row || a.seat - b.seat
 
-export function TablePicker({ tier: tierProp, tableId, pick, n, of, taken, onChoose, onClose, embedded }: TablePickerProps) {
+export function TablePicker({ tier: tierProp, tableId, pick, n, of, taken, onChoose, onSwitch, onClose, embedded }: TablePickerProps) {
   const { lang } = useLang()
   const t = useCallback((k: keyof typeof L) => L[k][lang], [lang])
   const reduced = usePrefersReducedMotion()
@@ -95,6 +129,12 @@ export function TablePicker({ tier: tierProp, tableId, pick, n, of, taken, onCho
   const [venue, setVenue] = useState<Venue | null>(null)
   const [sel, setSel] = useState<VenueTable | null>(null)
   const [seated, setSeated] = useState(false)
+  // The call to flip: shown once the opening has landed, gone after the first flip or pick.
+  const [nudge, setNudge] = useState(false)
+  const [started, setStarted] = useState(!!tableId)
+  // A table of the other package the buyer tapped in pick mode: the switch pop-up.
+  const [ask, setAsk] = useState<VenueTable | null>(null)
+  const askRef = useRef<HTMLDivElement>(null)
 
   // Overlay anchors, written straight to the DOM each frame (never through React).
   const tagRef = useRef<HTMLDivElement>(null)
@@ -126,11 +166,12 @@ export function TablePicker({ tier: tierProp, tableId, pick, n, of, taken, onCho
 
   // Read by the per-frame overlay writer, which must not re-subscribe on every pick.
   const selRef = useRef<VenueTable | null>(null)
-  selRef.current = sel
+  selRef.current = ask ?? sel
 
   const select = useCallback((x: VenueTable) => {
     setSel(x)
     setSeated(false)
+    setStarted(true)
     sceneRef.current?.frameTable(x)
   }, [])
 
@@ -154,6 +195,7 @@ export function TablePicker({ tier: tierProp, tableId, pick, n, of, taken, onCho
         await sc.load(manifest, '/venue/arusha.glb', '/venue/placements.json', '/venue/textures.json')
         if (!alive) return
         sc.tablePads()
+        if (!FREE_LOOK) sc.lockCamera()
         setVenue(manifest)
         setPhase('ready')
         const start = tableId ? manifest.tables.find((x) => x.id === tableId) : undefined
@@ -176,11 +218,16 @@ export function TablePicker({ tier: tierProp, tableId, pick, n, of, taken, onCho
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const askOpen = useRef(false)
+  askOpen.current = !!ask
+  const keepRef = useRef(() => {})
   useEffect(() => {
     const onResize = () => sceneRef.current?.resize()
     window.addEventListener('resize', onResize)
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key !== 'Escape') return
+      if (askOpen.current) keepRef.current()
+      else onClose()
     }
     window.addEventListener('keydown', onKey)
     return () => {
@@ -193,24 +240,53 @@ export function TablePicker({ tier: tierProp, tableId, pick, n, of, taken, onCho
   useEffect(() => {
     const sc = sceneRef.current
     if (!sc || phase !== 'ready') return
-    sc.paintTables({ focus: tier ?? null, selected: sel?.id ?? null, taken })
-    sc.beacon(seated ? null : sel)
-  }, [phase, sel, seated, tier, taken])
+    sc.paintTables({ focus: tier ?? null, selected: ask?.id ?? sel?.id ?? null, taken })
+    sc.beacon(ask ?? (seated ? null : sel))
+  }, [phase, sel, seated, tier, taken, ask])
 
-  // Taps on the map select; taps on another package's table do nothing in pick mode.
+  // The nudge waits for the opening glide to land, so it points at a still screen.
+  useEffect(() => {
+    if (phase !== 'ready' || started) return
+    const id = window.setTimeout(() => setNudge(true), reduced ? 0 : NUDGE_AFTER_MS)
+    return () => window.clearTimeout(id)
+  }, [phase, started, reduced])
+  useEffect(() => {
+    if (started) setNudge(false)
+  }, [started])
+
+  // Taps on the map select. In pick mode a table of the other package is not chosen
+  // silently or ignored: the camera shows it and a pop-up offers to switch packages.
   useEffect(() => {
     const sc = sceneRef.current
     const canvas = canvasRef.current
     if (!sc || !canvas || phase !== 'ready') return
     sc.setPickHandler((p) => {
-      if (!p) return
-      if (pick && tier && p.table.tier !== tier) return
+      if (!p || ask) return
+      if (pick && tier && p.table.tier !== tier) {
+        if (taken.includes(p.table.id)) return
+        setAsk(p.table)
+        sc.frameTable(p.table)
+        return
+      }
       select(p.table)
     })
     canvas.addEventListener('pointerdown', sc.handleTap)
     return () => canvas.removeEventListener('pointerdown', sc.handleTap)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, pick, tier])
+  }, [phase, pick, tier, ask, taken])
+
+  // The pop-up takes focus, and Escape (or "keep") puts the camera back where it was.
+  const keep = useCallback(() => {
+    setAsk(null)
+    const sc = sceneRef.current
+    if (sel) sc?.frameTable(sel)
+    else sc?.tablesOverview()
+  }, [sel])
+  keepRef.current = keep
+  useEffect(() => {
+    if (!ask) return
+    askRef.current?.querySelector<HTMLButtonElement>('button')?.focus()
+  }, [ask])
 
   // ── overlays track the camera
   useEffect(() => {
@@ -267,6 +343,8 @@ export function TablePicker({ tier: tierProp, tableId, pick, n, of, taken, onCho
   }
 
   const isTaken = !!sel && taken.includes(sel.id)
+  // The table wearing the hologram: one being asked about, else the selection.
+  const tagged = ask ?? (seated ? null : sel)
   const head = pick && tier
     ? fill(t('pickHead'), { tier: TIER_NAME[tier] })
     : tier && !tableId
@@ -301,23 +379,24 @@ export function TablePicker({ tier: tierProp, tableId, pick, n, of, taken, onCho
             </div>
           ))}
 
-          {sel && !seated && (
+          {tagged && (
             <>
               <div ref={beamRef} className="tpick__beam" />
-              <div ref={tagRef} className={`holo holo--${sel.tier}${isTaken ? ' is-taken' : ''}`} key={sel.id}>
-                <span className="holo__tier">{TIER_NAME[sel.tier]}</span>
-                <span className="holo__id">{sel.id}</span>
+              <div ref={tagRef} className={`holo holo--${tagged.tier}${isTaken && !ask ? ' is-taken' : ''}`} key={tagged.id}>
+                <span className="holo__tier">{TIER_NAME[tagged.tier]}</span>
+                <span className="holo__id">{tagged.id}</span>
                 <span className="holo__facts">
-                  {fill(t('platform'), { p: sel.platform })} · {fill(t('row'), { r: sel.row })}
+                  {fill(t('platform'), { p: tagged.platform })} · {fill(t('row'), { r: tagged.row })}
                 </span>
-                {isTaken && <span className="holo__flag">{t('inBasket')}</span>}
+                {isTaken && !ask && <span className="holo__flag">{t('inBasket')}</span>}
+                {ask && <span className="holo__flag holo__flag--other">{t('notYours')}</span>}
               </div>
             </>
           )}
         </div>
       )}
 
-      <div className="tpick__top">
+      <div className="tpick__top" inert={!!ask}>
         <button type="button" className="tpick__close" onClick={onClose}>
           <span aria-hidden="true">←</span> {pick && embedded ? t('back') : t('close')}
         </button>
@@ -344,7 +423,7 @@ export function TablePicker({ tier: tierProp, tableId, pick, n, of, taken, onCho
       )}
 
       {phase === 'ready' && (
-        <section className="tpick__panel" aria-label={head}>
+        <section className="tpick__panel" aria-label={head} inert={!!ask}>
           <header className="tpick__head">
             <h1 className="tpick__title">
               {tier && <span className={`tpick__dot tpick__dot--${tier}`} aria-hidden="true" />}
@@ -382,9 +461,27 @@ export function TablePicker({ tier: tierProp, tableId, pick, n, of, taken, onCho
               <span className="tpick__id">{sel ? sel.id : '—'}</span>
               {sel && <span className="tpick__count">{fill(t('ofCount'), { i: index, n: list.length })}</span>}
             </div>
-            <button type="button" className="tpick__arrow" onClick={() => flip(1)} aria-label={t('next')}>
-              ›
-            </button>
+            <span className="tpick__nextwrap">
+              <button
+                type="button"
+                className={`tpick__arrow${nudge && !ask ? ' is-nudge' : ''}`}
+                onClick={() => flip(1)}
+                aria-label={t('next')}
+                aria-describedby={nudge && !ask ? 'tpick-nudge' : undefined}
+              >
+                ›
+              </button>
+              {nudge && !ask && (
+                <span id="tpick-nudge" className="tpick__nudge">
+                  {tier ? fill(t('nudge'), { tier: TIER_NAME[tier] }) : t('nudgeLook')}
+                  <span className="tpick__nudgehand" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M12 4v13M6.5 11.5 12 17l5.5-5.5" />
+                    </svg>
+                  </span>
+                </span>
+              )}
+            </span>
           </div>
 
           {sel && (
@@ -412,6 +509,48 @@ export function TablePicker({ tier: tierProp, tableId, pick, n, of, taken, onCho
           )}
         </section>
       )}
+      {ask && tier && (() => {
+        const mine = list[0]?.price ?? 0
+        const diff = Math.abs(mine - ask.price)
+        return (
+          <div className="tpick__ask" role="presentation" onClick={(e) => e.target === e.currentTarget && keep()}>
+            <div
+              ref={askRef}
+              className="tpick__askcard"
+              role="alertdialog"
+              aria-modal="true"
+              aria-labelledby="tpick-ask-h"
+              aria-describedby="tpick-ask-b"
+            >
+              <h2 id="tpick-ask-h" className="tpick__askhead">
+                <span className={`tpick__dot tpick__dot--${ask.tier}`} aria-hidden="true" />
+                {fill(t('askHead'), { id: ask.id, other: TIER_NAME[ask.tier] })}
+              </h2>
+              <p id="tpick-ask-b" className="tpick__askbody">
+                {fill(t('askBody'), {
+                  tier: TIER_NAME[tier],
+                  rows: TIER_ROWS[tier],
+                  other: TIER_NAME[ask.tier],
+                  otherRows: TIER_ROWS[ask.tier],
+                  price: tzs(ask.price),
+                })}{' '}
+                {diff > 0 && fill(t(ask.price < mine ? 'askLess' : 'askMore'), { diff: tzs(diff) })}
+              </p>
+              {onSwitch && <p className="tpick__asknote">{t('askNote')}</p>}
+              <div className="tpick__askacts">
+                {onSwitch && (
+                  <button type="button" className="btn btn--primary" onClick={() => onSwitch(ask)}>
+                    {fill(t('askSwitch'), { other: TIER_NAME[ask.tier], id: ask.id })}
+                  </button>
+                )}
+                <button type="button" className="tpick__back tpick__askstay" onClick={keep}>
+                  {fill(t('askStay'), { tier: TIER_NAME[tier] })}
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }
