@@ -461,6 +461,19 @@ const SNOW_FIGURE_BOX: Box = { x: [-27.75, -27.35], y: [0, 1.9], z: [44.4, 46.0]
 const SNOW_SIGN_BOX: Box = { x: [-27.75, -27.35], y: [1.6, 2.15], z: [45.2, 46.4] }
 
 /**
+ * Back-of-house pieces the survey carries but the walkthrough leaves out, by direction
+ * (Francis, 24 Nov 2026): the bar kiosk beside platform B's front corner, the walled
+ * service yard behind stage left with its blue unit, and the white marquee behind stage
+ * right. Each box was checked triangle by triangle to hold nothing else; the perimeter
+ * fence (x 27.7, z -41.8) stays outside them.
+ */
+const CUT_AWAY: readonly Box[] = [
+  { x: [22.6, 26.3], y: [-0.2, 3.6], z: [-19.1, -16.8] }, // bar kiosk
+  { x: [10.5, 27.2], y: [-0.2, 3.0], z: [-40.0, -28.4] }, // service yard, walls and unit
+  { x: [-24.9, -18.8], y: [-0.2, 5.6], z: [-34.2, -23.6] }, // marquee
+]
+
+/**
  * Cold white for the lit letters, not the model's warm apricot.
  *
  * It is the same family as the beams and the fixture lenses, so the signage reads as
@@ -1287,6 +1300,7 @@ export class VenueScene {
     }
     for (const parts of protos.values()) for (const p of parts) p.removeFromParent()
 
+    this.cutAway(CUT_AWAY)
     this.mainScreen()
     this.vvipLight(venue)
     this.eventRig()
@@ -1531,6 +1545,53 @@ export class VenueScene {
    *  4. The two cut-out lockups at the entry, lit from within. One extra draw call,
    *     and the only one of the five that is geometry the model already had.
    */
+  /**
+   * Drops every static triangle whose centre lies in one of the boxes. The static
+   * geometry is merged by material across the whole site, so there is no object to
+   * hide: the index is rebuilt without those triangles and the material groups are
+   * renumbered to match. Runs before any lighting pass splits a mesh by region.
+   */
+  private cutAway(boxes: readonly Box[]) {
+    const inside = (x: number, y: number, z: number) =>
+      boxes.some((b) => x >= b.x[0] && x <= b.x[1] && y >= b.y[0] && y <= b.y[1] && z >= b.z[0] && z <= b.z[1])
+    const v = new THREE.Vector3()
+    this.scene.updateMatrixWorld()
+    this.scene.traverse((o) => {
+      const mesh = o as THREE.Mesh
+      if (!mesh.isMesh || (mesh as THREE.InstancedMesh).isInstancedMesh || !mesh.name.startsWith('static_')) return
+      const g = mesh.geometry
+      const pos = g.attributes.position
+      const src = g.index
+      const total = src ? src.count : pos.count
+      const groups = g.groups.length ? g.groups : [{ start: 0, count: total, materialIndex: 0 }]
+      const keep: number[] = []
+      const next: { start: number; count: number; materialIndex: number }[] = []
+      let dropped = 0
+      for (const gr of groups) {
+        const start = keep.length
+        for (let i = gr.start; i < gr.start + gr.count; i += 3) {
+          const a = src ? src.getX(i) : i
+          const b = src ? src.getX(i + 1) : i + 1
+          const c = src ? src.getX(i + 2) : i + 2
+          v.set(
+            (pos.getX(a) + pos.getX(b) + pos.getX(c)) / 3,
+            (pos.getY(a) + pos.getY(b) + pos.getY(c)) / 3,
+            (pos.getZ(a) + pos.getZ(b) + pos.getZ(c)) / 3,
+          ).applyMatrix4(mesh.matrixWorld)
+          if (inside(v.x, v.y, v.z)) dropped++
+          else keep.push(a, b, c)
+        }
+        next.push({ start, count: keep.length - start, materialIndex: gr.materialIndex ?? 0 })
+      }
+      if (!dropped) return
+      g.setIndex(keep)
+      g.clearGroups()
+      if (Array.isArray(mesh.material)) for (const gr of next) g.addGroup(gr.start, gr.count, gr.materialIndex)
+      g.computeBoundingBox()
+      g.computeBoundingSphere()
+    })
+  }
+
   private eventRig() {
     this.skyDome()
     this.groundPools()

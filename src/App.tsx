@@ -6,6 +6,10 @@ import { Hero, SiteHeader } from './components/Hero'
 import { CodeEntry } from './components/CodeEntry'
 import { Tickets } from './components/Tickets'
 import { VenuePreview } from './components/VenuePreview'
+
+/** The "Walk the venue before the night" band under Tickets. Parked (24 Nov 2026) until
+ *  the 3D walkthrough is ready to promote; flip to true to bring it back. */
+const VENUE_BAND = false
 import { EventsMap } from './components/EventsMap'
 import { HowItWorks } from './components/HowItWorks'
 import { Activations } from './components/Activations'
@@ -51,7 +55,7 @@ function Site() {
       <main>
         <Hero />
         <Tickets />
-        <VenuePreview />
+        {VENUE_BAND && <VenuePreview />}
         <CodeEntry />
         <HowItWorks />
         <Activations />

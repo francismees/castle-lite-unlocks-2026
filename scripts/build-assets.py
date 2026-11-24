@@ -67,6 +67,9 @@ TALENTS = [
     ("marioo.png", "marioo", 1.0),
     ("g-nako.png", "g-nako", 1.0),
     ("juma-nature.png", "juma-nature", 1.0),
+    # The unannounced act: a rim-lit silhouette generated with Codex (GPT Image, native
+    # transparency) from Talent Regen/Surprise; variant B is the one in Approved.
+    ("surprise.png", "surprise", 1.0),
 ]
 
 SCENES_SRC = ROOT / "01 - ARUSHA" / "3D PLAN" / "Scenes"

@@ -2,11 +2,12 @@ import { useLang } from '../i18n/LanguageContext'
 import { campaign } from '../config/campaign'
 
 /**
- * Section 4 — Find Us On the Ground.
+ * Section 4 — the hotline (was "Find Us On the Ground" until 24 Nov 2026).
  *
- * Consumer-facing framing only. This section describes where to find the campaign in
- * real life; it must not state or imply that Bluetrain directs or manages the
- * activations partner (spec §0 Section 4). Region chips are display-only, not filters.
+ * One job: get people with a question, or stuck buying a ticket, onto the phone line.
+ * The campaign-region chips were removed with the rewrite. Consumer-facing framing
+ * only; it must not state or imply that Bluetrain directs or manages the activations
+ * partner (spec §0 Section 4).
  *
  * The ambassadors cut-out sits on the section's bottom edge, to the right of the copy on
  * desktop (where the centre ambassador's head rises slightly into the section above) and
@@ -43,14 +44,6 @@ export function Activations() {
             <span className="callout__cta">{t(s.activation.callCta)}</span>
           </span>
         </a>
-
-        <ul className="chips" aria-label={t(s.activation.regionsLabel)}>
-          {campaign.regions.map((r) => (
-            <li className="chip" key={r}>
-              {r}
-            </li>
-          ))}
-        </ul>
       </div>
 
       <div className="activations__art">

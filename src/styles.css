@@ -1347,6 +1347,54 @@ img { max-width: 100%; display: block; }
 }
 .lcard__value--strong { font-weight: 700; }
 .lcard--headliners .lcard__value { font-size: clamp(18px, 2.3vw, 28px); white-space: nowrap; }
+/* The surprise headliner: a name still loading (EventsMap → SurpriseArtist). Jolt Blue
+   (Francis, 24 Nov 2026) so it stands apart from the confirmed white names,
+   with a bar beneath that fills most of the way, then starts over. */
+.surprise { display: grid; justify-self: start; gap: 6px; margin-top: 4px; }
+/* White on a Jolt Blue block, the poster name-box treatment: 8.3:1, where Jolt Blue
+   type straight on the navy card would sit near 2:1. */
+.surprise__name {
+  display: grid;
+  padding: 3px 9px 2px;
+  background: var(--jolt-blue);
+  box-shadow: 0 0 18px rgba(19, 53, 216, 0.65);
+}
+.surprise__name .scramble__live { color: var(--crisp-white); }
+/* Shared by every ScrambleText: the hidden final word holds the width. */
+.scramble { display: inline-grid; }
+.scramble__sizer, .scramble__live { grid-area: 1 / 1; }
+.scramble__sizer { visibility: hidden; }
+.scramble__live { overflow: hidden; }
+.surprise__bar {
+  position: relative;
+  width: 100%;
+  height: 3px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+}
+.surprise__bar::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--jolt-blue), var(--crisp-white));
+  box-shadow: 0 0 10px rgba(185, 205, 255, 0.7);
+  transform-origin: left;
+  animation: surprise-load 4.6s cubic-bezier(0.25, 0.8, 0.3, 1) infinite;
+}
+@keyframes surprise-load {
+  0% { transform: scaleX(0); opacity: 1; }
+  70% { transform: scaleX(0.86); opacity: 1; }
+  92% { transform: scaleX(0.9); opacity: 1; }
+  100% { transform: scaleX(0.9); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .surprise__bar::after { animation: none; }
+  .surprise__bar::after { transform: scaleX(0.6); }
+}
+
 /* Headliners back: names left, the artists' faces to their right, so the back is no
    taller than the front and neither face carries empty space. */
 .lcard--headliners .lcard__side--back {
@@ -1687,6 +1735,46 @@ img { max-width: 100%; display: block; }
 }
 .pcard__amount { margin-top: 14px; font-size: clamp(28px, 3vw, 34px); font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
 .pcard__body { margin-top: 12px; font-size: 14px; line-height: 1.45; }
+/* Cash only (PrizeMarquee, COLD_PRIZES off): the three cards stand still in a row. On
+   phones the row swipes sideways and snaps, a peek of the next card showing it goes on. */
+.prizes__row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: min(78vw, 300px);
+  gap: 14px;
+  margin: 26px calc(var(--gutter) * -1) 0;
+  padding: 0 var(--gutter) 6px;
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  scrollbar-width: none;
+}
+.prizes__row::-webkit-scrollbar { display: none; }
+.prizes__row > li { scroll-snap-align: start; }
+.prizes__row .pcard { min-height: 400px; }
+@media (min-width: 860px) {
+  .prizes__row {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow: visible;
+  }
+  .prizes__row .pcard { min-height: 440px; }
+  /* Three lines for every explanation, so the three stacks stand on one line. */
+  .prizes__row .pcard__body { min-height: calc(3 * 1.45em + 16px); }
+}
+/* The stack fills the space between amount and explanation, anchored to its foot so all
+   three stand on the same line and only their height differs. */
+.money { display: block; flex: 1 1 auto; width: 100%; min-height: 150px; margin-top: 10px; }
+.money__glints path { animation: glint 2.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.money__glints path:nth-child(2) { animation-delay: -0.9s; }
+.money__glints path:nth-child(3) { animation-delay: -1.8s; }
+@keyframes glint { 0%, 100% { opacity: 0; scale: 0.4; } 45%, 55% { opacity: 1; scale: 1; } }
+@media (prefers-reduced-motion: reduce) { .money__glints path { animation: none; opacity: 0.8; } }
+
 /* Cash cards: tag, title and amount sit at the top; the explanation drops to the foot
    of the card, leaving open space between them. */
 .pcard--cash .pcard__body { margin-top: auto; padding-top: 16px; }
@@ -2275,6 +2363,41 @@ html[lang='sw'] .footer__warn { --em: 21.2; }
   letter-spacing: -0.01em;
   text-transform: uppercase;
 }
+/* The surprise plates sit exactly where every other talent's name does (Francis, 24 Nov
+   2026: consistent over the questions-mark clearance). Only the box hugs the plates, so
+   the loading bar beneath is as wide as SURPRISE rather than the whole slot. */
+.popin__name--surprise { inset-inline-end: auto; width: max-content; }
+
+/* The surprise slot (config/talents → surprise): the plates decode into SURPRISE /
+   ARTIST? on arrival, over a thin bar that loads most of the way while the slide holds
+   and never quite finishes. Same device as the line-up card's surprise line. */
+.popin__load {
+  position: relative;
+  width: 100%;
+  max-width: 9em;
+  height: 0.09em;
+  min-height: 3px;
+  margin-top: 0.18em;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+}
+.popin__load::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--jolt-blue), var(--crisp-white));
+  box-shadow: 0 0 10px rgba(185, 205, 255, 0.7);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.popin__item.is-current .popin__load::after { animation: popin-load 5.6s cubic-bezier(0.25, 0.8, 0.3, 1) both; }
+@keyframes popin-load { from { transform: scaleX(0); } to { transform: scaleX(0.9); } }
+@media (prefers-reduced-motion: reduce) {
+  .popin__item.is-current .popin__load::after { animation: none; transform: scaleX(0.6); }
+}
+
 .popin__word {
   background: var(--jolt-blue);
   color: var(--crisp-white);

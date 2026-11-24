@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties, PointerEvent, ReactNode } from 'react'
 import { useLang } from '../i18n/LanguageContext'
 import { campaign, type Locale, type MegaEvent } from '../config/campaign'
 import { artists } from '../config/artists'
 import { now } from '../lib/serverTime'
 import { DayMonth } from './DayMonth'
+import { usePrefersReducedMotion } from '../lib/hooks'
+import { ScrambleText } from './Scramble'
 
 /**
  * Mega Events — after Find Us On the Ground. A full-width dark band with an interactive map of Tanzania.
@@ -233,6 +235,7 @@ function CityPanel({ event, active, lang }: { event: MegaEvent; active: boolean;
               {lineup.headliners.map((id) => (
                 <span key={id}>{artistName(id)}</span>
               ))}
+              {lineup.surprise && <SurpriseArtist />}
             </p>
           </FlipCard>
 
@@ -305,6 +308,43 @@ function FlipCard({
         </div>
       </div>
     </li>
+  )
+}
+
+/**
+ * The headliner still to be revealed, drawn as a name that is loading: the letters
+ * scramble, decode left to right into SURPRISE ARTIST, hold, then break up and start
+ * again, over a thin bar that fills most of the way and never quite finishes. It never
+ * resolves to a real name, which is the point.
+ *
+ * An invisible copy of the final words reserves the width, so the scrambling glyphs
+ * (narrower and wider than the letters they stand in for) never move the card. Screen
+ * readers get one plain sentence instead. Runs only while on screen; with reduced
+ * motion the words simply sit there.
+ */
+function SurpriseArtist() {
+  const { s, t } = useLang()
+  // The question mark is the last character to lock in, so the line lands on a question.
+  const word = `${t(s.events.surprise).toUpperCase()}?`
+  const reduced = usePrefersReducedMotion()
+  const ref = useRef<HTMLSpanElement>(null)
+  const [visible, setVisible] = useState(false)
+
+  // Runs only while on screen.
+  useEffect(() => {
+    const el = ref.current
+    if (!el || typeof IntersectionObserver === 'undefined') return
+    const io = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting))
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  return (
+    <span ref={ref} className="surprise">
+      <ScrambleText word={word} running={visible && !reduced} className="surprise__name" />
+      <span className="surprise__bar" aria-hidden="true" />
+      <span className="visually-hidden">{t(s.events.surpriseSr)}</span>
+    </span>
   )
 }
 

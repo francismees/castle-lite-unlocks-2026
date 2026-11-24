@@ -211,6 +211,9 @@ export const strings = {
     hint: { en: "Hover or tap a city to see who's on stage.", sw: 'Chagua mji uone watakaopanda jukwaani.' },
     date: { en: 'Date', sw: 'Tarehe' },
     headliners: { en: 'Headline artists', sw: 'Wasanii wakuu' },
+    // The unrevealed headliner's line; it "loads" but never resolves.
+    surprise: { en: 'Surprise artist', sw: 'Msanii wa kushtukiza' },
+    surpriseSr: { en: 'and a surprise headliner, to be announced.', sw: 'na msanii mkuu wa kushtukiza, atatangazwa baadaye.' },
     djs: { en: 'DJs', sw: 'Ma-DJ' },
     hosts: { en: 'Hosts', sw: 'Washereheshaji' },
     venue: { en: 'Venue', sw: 'Ukumbi' },
@@ -282,13 +285,13 @@ export const strings = {
   },
 
   activation: {
-    h2: { en: 'Find Us On the Ground', sw: 'Tukute Mtaani' },
+    // Rewritten 24 Nov 2026 (Francis) from "Find Us On the Ground" into the hotline.
+    h2: { en: 'Hit Up Our Hotline', sw: 'Tupigie Simu' },
     body: {
-      en: 'Castle Lite brand ambassadors are out in bars and events across the campaign regions. Find us and enter your code on the spot.',
-      sw: 'Mabalozi wa Castle Lite wapo kwenye baa na matukio katika mikoa ya kampeni. Tukute na uingize kodi yako papo hapo.',
+      en: 'Got a question, stuck buying your ticket, or just want the details? Call the Castle Lite Unlocks hotline and we will sort you out.',
+      sw: 'Una swali, umekwama kununua tiketi, au unataka maelezo tu? Piga simu ya Castle Lite Unlocks, tutakusaidia.',
     },
-    regionsLabel: { en: 'Campaign regions', sw: 'Mikoa ya kampeni' },
-    callCta: { en: 'Call for more information', sw: 'Piga simu kwa maelezo zaidi' },
+    callCta: { en: 'Call the hotline', sw: 'Piga simu sasa' },
     ambassadorsAlt: {
       en: 'Three Castle Lite brand ambassadors in silver Castle Lite jackets',
       sw: 'Mabalozi watatu wa Castle Lite wakiwa wamevaa jaketi za fedha za Castle Lite',

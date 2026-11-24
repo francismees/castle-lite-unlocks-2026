@@ -38,6 +38,8 @@ export interface MegaEvent {
      * the raw string, and the card simply flips without a photo coin.
      */
     headliners: string[]
+    /** One more headliner still to be revealed: shown as a "loading" line after the names. */
+    surprise?: boolean
     djs: string[]
     hosts: string[]
   }
@@ -105,10 +107,12 @@ export const campaign = {
       venue: 'General Tyre',
       date: '2026-12-31',
       coords: [-3.3869, 36.683],
-      // Lineup and venue confirmed in review, Nov 2026. None of these four are in
-      // artists.ts (no carousel photography), so they are plain display names.
+      // Lineup revised 24 Nov 2026 (Francis): Ayra Starr and Felo Le Tee are off the
+      // bill, Juma Nature is on, and a surprise headliner is still to be revealed. None
+      // are in artists.ts (no carousel photography), so they are plain display names.
       lineup: {
-        headliners: ['Marioo', 'G Nako', 'Ayra Starr', 'Felo Le Tee'],
+        headliners: ['Marioo', 'G Nako', 'Juma Nature'],
+        surprise: true,
         djs: ['Joozey', "D'Ommy"],
         hosts: ['Kiboh', 'Iddi Muller'],
       },

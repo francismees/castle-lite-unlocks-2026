@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { useLang } from '../i18n/LanguageContext'
 import { TALENT_WIDTHS, revealable } from '../config/talents'
+import { ScrambleText } from './Scramble'
 import { usePrefersReducedMotion } from '../lib/hooks'
 
 /**
@@ -38,9 +39,11 @@ const srcset = (stem: string, ext: 'avif' | 'webp') =>
 
 /** How long each artist holds the frame before handing over. */
 const HOLD_MS = 2600
+/** The surprise slot holds longer: ~2s of scramble and decode, then 4s to read it. */
+const SURPRISE_HOLD_MS = 6000
 
 export function ArtistPopIn() {
-  const { t } = useLang()
+  const { s, t } = useLang()
   const reduced = usePrefersReducedMotion()
   const rootRef = useRef<HTMLDivElement>(null)
   const [inView, setInView] = useState(false)
@@ -63,11 +66,13 @@ export function ArtistPopIn() {
     return () => io.disconnect()
   }, [])
 
+  // A timeout per slide rather than one interval, so each can hold for its own time.
   useEffect(() => {
     if (reduced || !inView || line.length < 2) return
-    const id = window.setInterval(() => setCurrent((n) => (n + 1) % line.length), HOLD_MS)
-    return () => window.clearInterval(id)
-  }, [reduced, inView, line.length])
+    const hold = line[current % line.length]?.surprise ? SURPRISE_HOLD_MS : HOLD_MS
+    const id = window.setTimeout(() => setCurrent((n) => (n + 1) % line.length), hold)
+    return () => window.clearTimeout(id)
+  }, [reduced, inView, line, current])
 
   // Nothing cleared yet: render nothing at all rather than an empty frame.
   if (line.length === 0) return null
@@ -109,11 +114,24 @@ export function ArtistPopIn() {
               </picture>
               {/* One plate per line. The break comes from `nameLines` in
                   config/talents, never from the column width — see there. */}
-              <figcaption className="popin__name">
-                {(talent.nameLines ?? [talent.name]).map((lineText, n) => (
-                  <span key={n} className="popin__word">{lineText}</span>
-                ))}
-              </figcaption>
+              {talent.surprise ? (
+                <figcaption className="popin__name popin__name--surprise">
+                  {/* Restarts each time the slide comes round: it decodes on arrival. */}
+                  {[t(s.events.surprise).split(' ')[0], `${t(s.events.surprise).split(' ').slice(1).join(' ')}?`].map((w, n) => (
+                    <span key={n} className="popin__word">
+                      <ScrambleText word={w.toUpperCase()} running={i === shown && inView && !reduced} loop={false} />
+                    </span>
+                  ))}
+                  <span className="popin__load" aria-hidden="true" />
+                  <span className="visually-hidden">{t(s.events.surpriseSr)}</span>
+                </figcaption>
+              ) : (
+                <figcaption className="popin__name">
+                  {(talent.nameLines ?? [talent.name]).map((lineText, n) => (
+                    <span key={n} className="popin__word">{lineText}</span>
+                  ))}
+                </figcaption>
+              )}
             </figure>
           </li>
         ))}

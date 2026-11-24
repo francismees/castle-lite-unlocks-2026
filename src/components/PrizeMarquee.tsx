@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useLang } from '../i18n/LanguageContext'
 import { campaign, formatPrize } from '../config/campaign'
 import type { Str } from '../i18n/strings'
 import { usePrefersReducedMotion } from '../lib/hooks'
 import { IconChevron, IconPause, IconPlay } from './Icons'
+import { MoneyStack } from './MoneyStack'
 
 /**
  * What You Can Unlock — a full-width band on the Blue Jolt plate, with every prize on a
@@ -24,6 +25,10 @@ import { IconChevron, IconPause, IconPlay } from './Icons'
 const SPEED = 33 // px per second
 const STEP_MS = 520
 
+/** The Extra Cold merch cards. Parked (24 Nov 2026): the band shows the cash prizes only
+ *  for now; flip to true to bring the four merch prizes back. */
+const COLD_PRIZES = false
+
 const PRIZE_WIDTHS = [320, 640]
 const PRIZE_SIZES = '(min-width: 720px) 250px, 220px'
 const prizeSrcset = (stem: string, ext: 'avif' | 'webp') =>
@@ -33,6 +38,9 @@ export function PrizeMarquee() {
   const { s, t, lang } = useLang()
   const reduced = usePrefersReducedMotion()
   const [paused, setPaused] = useState(false)
+  // Copies of the card set after the first. One is enough when a set is wider than the
+  // band; a short set (three cash cards on a wide screen) needs more, or the loop shows a gap.
+  const [copies, setCopies] = useState(1)
 
   const bandRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
@@ -83,11 +91,14 @@ export function PrizeMarquee() {
     if (!el) return
     const measure = () => {
       setWidth.current = el.offsetWidth
+      const band = bandRef.current?.offsetWidth ?? 0
+      if (el.offsetWidth > 0) setCopies(Math.max(1, Math.ceil(band / el.offsetWidth)))
       paint()
     }
     measure()
     const ro = new ResizeObserver(measure)
     ro.observe(el)
+    if (bandRef.current) ro.observe(bandRef.current)
     return () => ro.disconnect()
   }, [paint])
 
@@ -131,6 +142,7 @@ export function PrizeMarquee() {
       card: (
         <CashCard tag={t(s.prizes.cashTag)} title={t(s.features.instantTitle)}>
           <p className="pcard__amount">{formatPrize(campaign.instantPrize, lang)}</p>
+          <MoneyStack level={1} />
           <p className="pcard__body">{t(s.features.instantBody)}</p>
         </CashCard>
       ),
@@ -140,6 +152,7 @@ export function PrizeMarquee() {
       card: (
         <CashCard tag={t(s.prizes.cashTag)} title={t(s.features.weeklyTitle)}>
           <p className="pcard__amount">{formatPrize(campaign.weeklyPrize1, lang)}</p>
+          <MoneyStack level={2} />
           <p className="pcard__body">
             {t(s.features.weeklyTierBody).replace('{count}', String(campaign.weeklyPrize1Count))}
           </p>
@@ -151,6 +164,7 @@ export function PrizeMarquee() {
       card: (
         <CashCard tag={t(s.prizes.cashTag)} title={t(s.features.weeklyTitle)}>
           <p className="pcard__amount">{formatPrize(campaign.weeklyPrize2, lang)}</p>
+          <MoneyStack level={3} />
           <p className="pcard__body">
             {t(s.features.weeklyTopBody).replace('{count}', String(campaign.weeklyPrize2Count))}
           </p>
@@ -169,7 +183,7 @@ export function PrizeMarquee() {
 
   const items: Array<{ id: string; card: ReactNode; backNote?: string }> = [
     ...cash,
-    ...cold.map((p) => ({
+    ...(COLD_PRIZES ? cold : []).map((p) => ({
       id: p.stem,
       backNote: t(s.prizes.inBar),
       card: (
@@ -211,6 +225,24 @@ export function PrizeMarquee() {
     </ul>
   )
 
+  // Cash only: three cards fit on one screen, so they sit still in a row (a swipeable
+  // row on phones) instead of drifting past.
+  if (!COLD_PRIZES)
+    return (
+      <div ref={bandRef} className="prizes on-dark" id="unlock" role="region" aria-labelledby="unlock-h2">
+        <div className="wrap prizes__head">
+          <h2 id="unlock-h2">{t(s.prizes.h2)}</h2>
+        </div>
+        <div className="wrap">
+          <ul className="prizes__row">
+            {cash.map((item) => (
+              <li key={item.id}>{item.card}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    )
+
   return (
     <div ref={bandRef} className="prizes on-dark" id="unlock" role="region" aria-labelledby="unlock-h2">
       <div className="wrap prizes__head">
@@ -228,7 +260,9 @@ export function PrizeMarquee() {
       >
         <div ref={trackRef} className="marquee__track">
           {set(false)}
-          {set(true)}
+          {Array.from({ length: copies }, (_, i) => (
+            <Fragment key={i}>{set(true)}</Fragment>
+          ))}
         </div>
       </div>
 

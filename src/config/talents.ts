@@ -67,6 +67,12 @@ export interface Talent {
    * announce; this is only how it is set.
    */
   nameLines?: string[]
+  /**
+   * The act not yet announced. The hero shows a silhouette and, instead of a name,
+   * plates that scramble and decode into SURPRISE / ARTIST? (the same device as the
+   * line-up card), and holds the slide for SURPRISE_HOLD_MS so the decode can land.
+   */
+  surprise?: boolean
   alt?: Str
 }
 
@@ -75,23 +81,27 @@ export interface Talent {
  * still waiting on artwork.
  *
  * [CONTENT-PENDING] Three cut-outs are cleared (transparent PNGs in
- * 00 - Assets/Talent Regen/Approved): Marioo, G Nako and Juma Nature. Ayra Starr
- * and Felo Le Tee have no photography at all; Joozey has press shots but no mask.
+ * 00 - Assets/Talent Regen/Approved): Marioo, G Nako and Juma Nature. Joozey has
+ * press shots but no mask.
  * Their `cutout` stays undefined and the hero skips them rather than holding a
  * gap, so the line-up fills in one talent at a time as artwork clears.
  *
- * [DISCREPANCY] Juma Nature has a cleared cut-out but is NOT in the Arusha
- * line-up in campaign.ts (headliners: Marioo, G Nako, Ayra Starr, Felo Le Tee).
- * He is rendered here because the artwork was supplied for the hero, but the two
- * lists disagree and one of them is wrong — either he joins campaign.ts or he
- * comes out of here.
+ * Matches the Arusha headliners in campaign.ts since 24 Nov 2026 (Marioo, G Nako,
+ * Juma Nature, plus a surprise act still to be revealed).
  */
 export const talents: Talent[] = [
   { id: 'marioo', name: 'Marioo', role: 'artist', cutout: 'marioo' },
   { id: 'g-nako', name: 'G Nako', role: 'artist', cutout: 'g-nako' },
   { id: 'juma-nature', name: 'Juma Nature', role: 'artist', cutout: 'juma-nature', nameLines: ['Juma', 'Nature'] },
-  { id: 'ayra-starr', name: 'Ayra Starr', role: 'artist' },
-  { id: 'felo-le-tee', name: 'Felo Le Tee', role: 'artist' },
+  // The unannounced headliner: a silhouette, and SURPRISE / ARTIST? instead of a name.
+  {
+    id: 'surprise',
+    name: 'Surprise artist',
+    role: 'artist',
+    cutout: 'surprise',
+    surprise: true,
+    alt: { en: 'A surprise headliner in silhouette, still to be announced', sw: 'Msanii mkuu wa kushtukiza, bado hajatangazwa' },
+  },
   { id: 'joozey', name: 'Joozey', role: 'dj' },
   { id: 'dommy', name: "D'Ommy", role: 'dj' },
 ]
